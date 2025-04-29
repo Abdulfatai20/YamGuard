@@ -46,6 +46,7 @@ class NextForecastPage extends StatelessWidget {
                         style: TextStyle(
                           color: AppColors.secondary700,
                           fontSize: 14.0,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       Row(
@@ -55,6 +56,7 @@ class NextForecastPage extends StatelessWidget {
                             item['temp']!,
                             style: const TextStyle(
                               fontSize: 14,
+                              fontWeight: FontWeight.w500,
                               color: AppColors.secondary900,
                             ),
                           ),

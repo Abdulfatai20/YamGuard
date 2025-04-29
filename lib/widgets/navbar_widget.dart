@@ -52,7 +52,7 @@ class NavbarWidget extends StatelessWidget {
                 Text(
                   item['label']!,
                   style: TextStyle(
-                    fontSize: 10.0,
+                    fontSize: 12.0,
                     fontWeight: FontWeight.w500,
                     color:
                         isSelected

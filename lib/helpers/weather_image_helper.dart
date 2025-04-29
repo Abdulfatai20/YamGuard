@@ -9,7 +9,7 @@ String getWeatherImageFromFeeling(String feel) {
     case 'light rain':
     return 'assets/images/light_rain.png';
     case 'harmattan':
-    return 'assets/images/sunlight.png';
+    return 'assets/images/stormy.png';
     case 'stormy winds':
     return 'assets/images/windy.png';
     case 'windy':
@@ -19,6 +19,8 @@ String getWeatherImageFromFeeling(String feel) {
     case 'sunny':
       return 'assets/images/sunlight.png';
     case 'partly sunny':
+      return 'assets/images/partly_sunny.png';
+    case 'partly cloudy':
       return 'assets/images/partly_cloudy.png';
     case 'mostly cloudy':
     return 'assets/images/Mostly_cloudy.png';

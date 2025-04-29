@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:yam_guard/config/api_keys.dart';
-import 'package:yam_guard/helpers/forecast_image_helper.dart';
+import 'package:yam_guard/helpers/next_forecast_image_helper.dart';
+import 'package:yam_guard/helpers/today_forecast_image_helper.dart';
 
 class WeatherService {
   static const _baseUrl = 'https://api.openweathermap.org/data/3.0/onecall';
-  final double _latitude = 7.767; // latitude for Osogbo
-  final double _longitude = 4.567; // longitude for Osogbo
+  final double _latitude = 7.7667; // latitude for Osogbo
+  final double _longitude = 4.5667; // longitude for Osogbo
 
   // 🌀 FULL WEATHER DATA (current, hourly, daily, alerts)
   Future<Map<String, dynamic>> fetchWeatherData() async {
@@ -34,8 +35,7 @@ class WeatherService {
       throw Exception('Failed to load 7-day forecast: ${response.body}');
     }
 
-    String capitalize(String text) =>
-    text[0].toUpperCase() + text.substring(1);
+    String capitalize(String text) => text[0].toUpperCase() + text.substring(1);
     final data = jsonDecode(response.body);
     final List daily = data['daily'];
 
@@ -43,16 +43,41 @@ class WeatherService {
       final descriptionRaw = day['weather'][0]['description'];
       final date = DateTime.fromMillisecondsSinceEpoch(day['dt'] * 1000);
       final formattedDate = DateFormat('MMM, d').format(date);
-      final description = capitalize(descriptionRaw); 
+      final description = capitalize(descriptionRaw);
       final temp = '$description, ${day['temp']['day'].round()}°';
 
       final imagePath = getCustomImageForDescription(description);
 
-      return {
-        'date': formattedDate,
-        'temp': temp,
-        'image': imagePath,
-      };
+      return {'date': formattedDate, 'temp': temp, 'image': imagePath};
     }).toList();
+  }
+
+  Future<Map<String, String>> fetchTodayForecast() async {
+    final url = Uri.parse(
+      '$_baseUrl?lat=$_latitude&lon=$_longitude&exclude=minutely&units=metric&appid=${ApiKeys.openWeather}',
+    );
+
+    final response = await http.get(url);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load today’s forecast: ${response.body}');
+    }
+    String capitalize(String text) => text[0].toUpperCase() + text.substring(1);
+
+    final data = jsonDecode(response.body);
+    final today = data['daily'][0];
+    final descriptionRaw = today['weather'][0]['description'];
+    final description = capitalize(descriptionRaw);
+    final date = DateTime.fromMillisecondsSinceEpoch(today['dt'] * 1000);
+    final formattedDate = DateFormat('MMM, d').format(date);
+    final temp = '$description, ${today['temp']['day'].round()}°';
+
+    final imagePath = getCustomImageForDescription(description);
+    final advice = getAdviceForWeather(description);
+    return {
+    'date': formattedDate,
+    'temp': temp,
+    'image': imagePath,
+    'advice': advice,
+  };
   }
 }

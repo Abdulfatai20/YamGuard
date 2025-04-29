@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yam_guard/providers/forecast_provider.dart';
+import 'package:yam_guard/providers/next_forecast_provider.dart';
 import 'package:yam_guard/providers/weather_provider.dart';
 import 'package:yam_guard/helpers/weather_image_helper.dart';
 import 'package:yam_guard/helpers/weather_feel_helper.dart';
@@ -8,6 +8,7 @@ import 'package:yam_guard/widgets/forecast_tips_widget.dart';
 import 'package:yam_guard/widgets/next_forecast_widget.dart';
 import 'package:yam_guard/themes/colors.dart';
 import 'package:yam_guard/widgets/appbar_widget.dart';
+import 'package:yam_guard/widgets/today_forecast_widget.dart';
 import 'package:yam_guard/widgets/weather_forecast_widget.dart';
 
 class ForecastPage extends ConsumerWidget {
@@ -16,7 +17,7 @@ class ForecastPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weatherData = ref.watch(weatherProvider);
-    final forecastData = ref.watch(forecastProvider); // Watch the weatherProvider
+    final forecastData = ref.watch(forecastProvider); 
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -73,13 +74,15 @@ class ForecastPage extends ConsumerWidget {
             const SizedBox(height: 20),
             const ForecastTipsWidget(),
             const SizedBox(height: 30),
+            const TodayForecastWidget(),
+            const SizedBox(height: 20),
             forecastData.when(
               data: (forecastItems) =>
                   NextForecastPage(forecastItems: forecastItems),
               loading: () => const CircularProgressIndicator(),
               error: (err, _) => Padding(
                 padding: const EdgeInsets.all(20),
-                child: Text('Failed to load forecast data'),
+                child: Text('Failed to load forecast data', style: TextStyle(fontWeight: FontWeight.w500),),
               ),
             ),
           ],

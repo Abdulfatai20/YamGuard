@@ -15,6 +15,11 @@ Map<String, String> getTipsByFeel(String weather) {
         'advice': 'Small sun helps yams grow well.',
         'action': 'Check farm and add manure if needed.',
       };
+      case 'partly cloudy':
+      return {
+        'advice': 'Partly cloudy skies, but yam still grows well.',
+        'action': 'Check for pests and weeds.',
+      };
     case 'mostly cloudy':
       return {
         'advice': 'Cloudy skies, but yams will do just fine.',
