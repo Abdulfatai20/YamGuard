@@ -55,7 +55,7 @@ class ForecastTipsWidget extends ConsumerWidget {
                   ),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppColors.secondary900,
                   ),
@@ -86,7 +86,7 @@ class ForecastTipsWidget extends ConsumerWidget {
                   ),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppColors.secondary900,
                   ),

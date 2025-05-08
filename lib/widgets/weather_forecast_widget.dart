@@ -46,7 +46,7 @@ class WeatherForecastWidget extends ConsumerWidget {
                 Text(
                   '$feel, $temperature°',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     color: AppColors.primary700,
                     fontWeight: FontWeight.w700,
                   ),
@@ -54,7 +54,7 @@ class WeatherForecastWidget extends ConsumerWidget {
                 Text(
                   'Today - $formattedDate',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color:
                         AppColors
@@ -79,7 +79,7 @@ class WeatherForecastWidget extends ConsumerWidget {
                   Text(
                     'Check your internet',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 20,
                       color: Colors.redAccent,
                       fontWeight: FontWeight.w700,
                     ),
@@ -87,7 +87,7 @@ class WeatherForecastWidget extends ConsumerWidget {
                   Text(
                     'Today - $formattedDate',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: AppColors.primary700,
                     ),

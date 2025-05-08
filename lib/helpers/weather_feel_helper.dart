@@ -1,6 +1,6 @@
 String getFeelsLikeWeather(Map<String, dynamic> data) {
   final current = data['current'];
-  final clouds = (current['clouds'] as num).floor(); // %
+  final cloudiness = (current['clouds'] as num).floor(); // %
   final visibility = (current['visibility'] as num).floor(); // meters
   final uvi = (current['uvi'] as num).floor();
   final windSpeed = current['wind_speed'];
@@ -14,7 +14,7 @@ String getFeelsLikeWeather(Map<String, dynamic> data) {
   final sunset = DateTime.fromMillisecondsSinceEpoch(current['sunset'] * 1000, isUtc: true);
   final isDayTime = now.isAfter(sunrise) && now.isBefore(sunset);
 
-  final isStormy = weatherDesc.contains('storm') || weatherDesc.contains('thunder');
+  final isStormy = weatherDesc.contains('storm') || weatherDesc.contains('thunder') ||  weatherDesc.contains('lightning');
   final isDusty = weatherDesc.contains('dust') || weatherDesc.contains('sand') || weatherDesc.contains('haze') || weatherDesc.contains('smoke');
   final isDrizzle = weatherDesc.contains('drizzle');
   final isRainDesc = weatherDesc.contains('rain') || weatherDesc.contains('shower');
@@ -25,8 +25,8 @@ String getFeelsLikeWeather(Map<String, dynamic> data) {
   final isLowVisibility = visibility < 3500;
   final isHighVisibility = visibility >= 8000;
 
-  final isVeryClear = clouds <= 50;
-  final isMostlyCloudy = clouds > 70 && clouds <= 100;
+  final isVeryClear = cloudiness <= 50;
+  final isMostlyCloudy = cloudiness > 70 && cloudiness <= 100;
 
   final isLowUV = uvi <= 3;
   final isDecentUV = uvi > 3 && uvi <= 5;
@@ -34,6 +34,10 @@ String getFeelsLikeWeather(Map<String, dynamic> data) {
   final isVeryStrongUV = uvi > 7;
 
   final isRaining = rainVolume > 0.0 || isRainDesc;
+
+   print(
+    'UV: $uvi, Clouds: $cloudiness, Visibility: $visibility, Time: $now, Sunrise: $sunrise, Sunset: $sunset, rain: $rainVolume, storm: $isStormy, dust: $isDusty',
+  );
 
   // 🌩️ Storm
   if (isStormy && (rainVolume >= 7.0 || isHeavyRainDesc)) return 'Stormy Rain';
@@ -55,16 +59,16 @@ String getFeelsLikeWeather(Map<String, dynamic> data) {
 
   // ☀️ Daytime Brightness
   if (isDayTime && !isRaining && !isStormy) {
-    if (clouds <= 50 && (isVeryStrongUV || isHighVisibility)) return 'Very Sunny';
-    if (clouds <= 70 && (isStrongUV || isHighVisibility)) return 'Sunny';
-    if (clouds <= 70 && (isDecentUV || isHighVisibility)) return 'Partly Sunny';
+    if (cloudiness <= 50 && (isVeryStrongUV || isHighVisibility)) return 'Very Sunny';
+    if (cloudiness <= 70 && (isStrongUV || isHighVisibility)) return 'Sunny';
+    if (isMostlyCloudy && (isDecentUV || isHighVisibility)) return 'Partly Sunny';
     if (isMostlyCloudy && (isLowUV || isHighVisibility)) return 'Mostly Cloudy';
     if (isMostlyCloudy && (isDecentUV || isHighVisibility)) return 'Partly Cloudy';
   }
 
   // 🌙 Nighttime
   if (!isDayTime) {
-    if (clouds <= 70) return 'Mostly Cloudy';
+    if (cloudiness <= 70) return 'Mostly Cloudy';
   }
 
   // Default

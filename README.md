@@ -3,7 +3,7 @@
  print(
     'UV: $uvi, Clouds: $cloudiness, Visibility: $visibility, Time: $now, Sunrise: $sunrise, Sunset: $sunset, rain: $rainVolume, storm: $isStormy, dust: $isDusty',
   );
-
+Refresh and notification 
 
 ## Getting Started
 
