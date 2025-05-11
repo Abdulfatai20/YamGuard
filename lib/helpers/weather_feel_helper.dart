@@ -59,9 +59,9 @@ String getFeelsLikeWeather(Map<String, dynamic> data) {
 
   // ☀️ Daytime Brightness
   if (isDayTime && !isRaining && !isStormy) {
-    if (cloudiness <= 50 && (isVeryStrongUV || isHighVisibility)) return 'Very Sunny';
-    if (cloudiness <= 70 && (isStrongUV || isHighVisibility)) return 'Sunny';
-    if (isMostlyCloudy && (isDecentUV || isHighVisibility)) return 'Partly Sunny';
+    if (cloudiness <= 20 && (isVeryStrongUV || isHighVisibility)) return ' Very Sunny';
+    if (cloudiness <= 50 && (isVeryStrongUV || isHighVisibility)) return 'Mostly Sunny';
+    if (cloudiness <= 70 && (isStrongUV || isHighVisibility)) return 'Partly Sunny';
     if (isMostlyCloudy && (isLowUV || isHighVisibility)) return 'Mostly Cloudy';
     if (isMostlyCloudy && (isDecentUV || isHighVisibility)) return 'Partly Cloudy';
   }
