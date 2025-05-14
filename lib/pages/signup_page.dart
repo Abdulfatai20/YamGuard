@@ -59,7 +59,7 @@ class _SignupPageState extends State<SignupPage> {
                       border: UnderlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                   TextField(
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
@@ -100,11 +100,12 @@ class _SignupPageState extends State<SignupPage> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const WidgetTree(),
                           ),
+                          (route) => false, // removes all previous routes
                         );
                       },
                       style: ElevatedButton.styleFrom(

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "606752585136",
+    "project_id": "yamguard-e4837",
+    "storage_bucket": "yamguard-e4837.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606752585136:android:03fb393f455c6fd3c35275",
+        "android_client_info": {
+          "package_name": "com.example.yam_guard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3ui0WMU3QRIgygUvvMiRK4Fec9fBBCmo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
