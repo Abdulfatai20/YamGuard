@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:yam_guard/pages/forecast_page.dart';
 import 'package:yam_guard/pages/loss_tracker_page.dart';
+import 'package:yam_guard/pages/profile_page.dart';
 import 'package:yam_guard/pages/storage_tips_page.dart';
+import 'package:yam_guard/themes/colors.dart';
 import 'package:yam_guard/widgets/navbar_widget.dart';
 
 class WidgetTree extends StatefulWidget {
@@ -16,9 +18,31 @@ final List<Widget> _pages = [
   ForecastPage(),
   LossTrackerPage(),
   StorageTipsPage(),
+  ProfilePage()
 ];
 
 class _WidgetTreeState extends State<WidgetTree> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args == 'logged_in') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Login successful',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: AppColors.primary700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

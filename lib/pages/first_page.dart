@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:yam_guard/pages/signup_page.dart';
+import 'package:yam_guard/mobile/auth_wrapper.dart';
 import 'package:yam_guard/themes/colors.dart';
 
 class FirstPage extends StatefulWidget {
@@ -18,7 +18,7 @@ class _FirstPageState extends State<FirstPage> {
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SignupPage()),
+        MaterialPageRoute(builder: (context) => AuthWrapper()),
       );
     });
   }

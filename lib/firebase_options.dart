@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -65,4 +62,15 @@ class DefaultFirebaseOptions {
     storageBucket: 'yamguard-e4837.firebasestorage.app',
     iosBundleId: 'com.example.yamGuard',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAqUwz__J-9yh-KfNJMkLSVhlGnNm9VzHE',
+    appId: '1:606752585136:web:de39df766ecde183c35275',
+    messagingSenderId: '606752585136',
+    projectId: 'yamguard-e4837',
+    authDomain: 'yamguard-e4837.firebaseapp.com',
+    storageBucket: 'yamguard-e4837.firebasestorage.app',
+    measurementId: 'G-REN34WERTP',
+  );
+
 }
