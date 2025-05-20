@@ -22,6 +22,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _isLoading = false;
   String errorMessage = '';
 
+  bool _showLogoutSucessSnackbar = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args == 'logged_out' && !_showLogoutSucessSnackbar) {
+          _showLogoutSucessSnackbar = true; // So it only shows once
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Logout successful',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: AppColors.primary700,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      });
+      // You cannot reset the arguments directly; consider using a local flag or a state management solution
+    }
+  }
+
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -64,6 +92,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             errorMessage,
             style: TextStyle(
               color: AppColors.white, // Yam greens
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        errorMessage = 'Unexpected error occured';
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            errorMessage,
+            style: const TextStyle(
+              color: AppColors.white,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),

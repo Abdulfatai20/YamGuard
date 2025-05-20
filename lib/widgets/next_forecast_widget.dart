@@ -21,7 +21,7 @@ class NextForecastPage extends StatelessWidget {
               style: TextStyle(
                 color: AppColors.secondary900,
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 10),

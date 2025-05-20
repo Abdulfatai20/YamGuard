@@ -70,7 +70,27 @@ class _SignupPageState extends ConsumerState<SignupPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-           duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        errorMessage = 'Unexpected error occured';
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            errorMessage,
+            style: const TextStyle(
+              color: AppColors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          duration: const Duration(seconds: 3),
         ),
       );
     } finally {

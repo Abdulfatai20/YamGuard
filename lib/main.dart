@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yam_guard/pages/first_page.dart';
+import 'package:yam_guard/mobile/auth_wrapper.dart';
 import 'package:yam_guard/themes/colors.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.white),
         scaffoldBackgroundColor: AppColors.white,
       ),
-      home: const FirstPage(),
+      home: const AuthWrapper(),
     );
   }
 }

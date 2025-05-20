@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:yam_guard/mobile/auth_wrapper.dart';
 import 'package:yam_guard/themes/colors.dart';
+import 'package:yam_guard/widgets/widget_tree.dart';
 
 class FirstPage extends StatefulWidget {
   const FirstPage({super.key});
@@ -18,7 +17,7 @@ class _FirstPageState extends State<FirstPage> {
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AuthWrapper()),
+        MaterialPageRoute(builder: (context) => WidgetTree()),
       );
     });
   }

@@ -13,21 +13,24 @@ class WidgetTree extends StatefulWidget {
   State<WidgetTree> createState() => _WidgetTreeState();
 }
 
-int _currentIndex = 0;
+class _WidgetTreeState extends State<WidgetTree> {
+  int _currentIndex = 0;
 final List<Widget> _pages = [
   ForecastPage(),
   LossTrackerPage(),
   StorageTipsPage(),
   ProfilePage()
 ];
+  bool _showLoginSuccessSnackbar = false;
 
-class _WidgetTreeState extends State<WidgetTree> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final args = ModalRoute.of(context)?.settings.arguments;
-    if (args == 'logged_in') {
+    if (args == 'logged_in' && !_showLoginSuccessSnackbar) {
+          _showLoginSuccessSnackbar = true; // So it only shows once
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -37,9 +40,11 @@ class _WidgetTreeState extends State<WidgetTree> {
             ),
             backgroundColor: AppColors.primary700,
             behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
           ),
         );
       });
+      // You cannot reset the arguments directly; consider using a local flag or a state management solution
     }
   }
 
