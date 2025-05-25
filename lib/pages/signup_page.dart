@@ -66,8 +66,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
             errorMessage,
             style: TextStyle(
               color: AppColors.white, // Yam greens
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+             
             ),
           ),
           duration: const Duration(seconds: 3),

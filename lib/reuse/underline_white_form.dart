@@ -4,7 +4,7 @@ import 'package:yam_guard/themes/colors.dart';
 InputDecoration whiteBorderDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: AppColors.white, fontSize: 12),
+      labelStyle: const TextStyle(color: AppColors.white, fontSize: 12, fontWeight: FontWeight.w500),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.white, width: 1),
       ),

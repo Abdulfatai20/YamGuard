@@ -41,7 +41,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             backgroundColor: AppColors.primary700,
             behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 3),
           ),
         );
       });
@@ -92,10 +92,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             errorMessage,
             style: TextStyle(
               color: AppColors.white, // Yam greens
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
             ),
           ),
+           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
         ),
       );
