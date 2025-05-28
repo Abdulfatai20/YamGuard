@@ -48,7 +48,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
   void initState() {
     super.initState();
     // Set current date formatted as yyyy-MM-dd or whichever format you prefer
-    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _dateController.text = DateFormat('MMM d, yyyy').format(DateTime.now());
   }
 
   @override
@@ -443,6 +443,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
                     ),
                   ),
                 ),
+                SizedBox(height: 20.0),
                 ExpiryDashboard( 
                  
                 ),

@@ -177,7 +177,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               ),
                               const SizedBox(height: 20),
                               OutlinedShadowButton(
-                                text: 'Forget Password',
+                                text: 'Change Password',
+                                onPressed: () {
+                                  // Password reset logic here
+                                },
+                              ),
+                              OutlinedShadowButton(
+                                text: 'Update Username',
+                                onPressed: () {
+                                  // Password reset logic here
+                                },
+                              ),
+                              OutlinedShadowButton(
+                                text: 'Delete Account',
                                 onPressed: () {
                                   // Password reset logic here
                                 },

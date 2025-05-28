@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yam_guard/auth/auth_wrapper.dart';
+import 'package:yam_guard/providers/expiry_cleanup_provider.dart';
 import 'package:yam_guard/themes/colors.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -14,17 +15,14 @@ void main() async {
   runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+ 
+    ref.read(expiryCleanupProvider);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
