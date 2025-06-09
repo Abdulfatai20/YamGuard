@@ -69,7 +69,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
     );
     if (picked != null) {
       setState(() {
-        _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+        _dateController.text = DateFormat('MMM d, yyyy').format(picked);
       });
     }
   }
@@ -113,7 +113,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
       final firestore = ref.read(firestoreProvider);
 
       print('Parsing dates...');
-      final harvestDate = DateTime.parse(_dateController.text);
+      final harvestDate = DateFormat('MMM d, yyyy').parse(_dateController.text);
       if (!mounted) return; // check if still mounted after async operation
       final expiryDate = calculateExpiryDate(harvestDate);
       print('Harvest date: $harvestDate, Expiry date: $expiryDate');
@@ -167,7 +167,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
 
       // Add timeout to the Firestore operation
       await firestore
-          .collection('yamHarvests')
+          .collection('activeHarvests')
           .add(data)
           .timeout(
             Duration(seconds: 30),
@@ -234,7 +234,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
   }
 
   void _clearForm() {
-    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _dateController.text = DateFormat('MMM dd, yyyy').format(DateTime.now());
     _totalHarvestedController.clear();
     _freshTubersController.clear();
     _bruisedTubersController.clear();
@@ -444,9 +444,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
                   ),
                 ),
                 SizedBox(height: 20.0),
-                ExpiryDashboard( 
-                 
-                ),
+                ExpiryDashboard(),
                 SizedBox(height: 30.0),
 
                 HistoryWidget(),

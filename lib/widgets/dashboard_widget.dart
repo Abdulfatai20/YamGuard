@@ -4,11 +4,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:yam_guard/actions/harvest_action.dart';
 import 'package:yam_guard/providers/firestore_provider.dart';
 import 'package:yam_guard/themes/colors.dart';
+import 'package:yam_guard/widgets/harvest_details_modal_widget.dart';
 
 class ExpiryDashboard extends ConsumerWidget {
   const ExpiryDashboard({super.key});
+
+  void _showHarvestDetails(
+    BuildContext context,
+    Map<String, dynamic> data,
+    WidgetRef ref,
+    String docId,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder:
+          (context) => HarvestDetailsModal(data: data, docId: docId, ref: ref),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,10 +38,7 @@ class ExpiryDashboard extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border(
-            bottom: BorderSide(
-              color: Color(0xB3BFBFBF),
-              width: 1.0,
-            ),
+            bottom: BorderSide(color: Color(0xB3BFBFBF), width: 1.0),
           ),
         ),
         child: Column(
@@ -42,15 +55,23 @@ class ExpiryDashboard extends ConsumerWidget {
             const SizedBox(height: 10),
 
             StreamBuilder<QuerySnapshot>(
-              stream: firestore
-                  .collection('activeHarvests') // Direct query to active items only
-                  .orderBy('expiryDate', descending: false) // Soonest expiry first
-                  .limit(10)
-                  .snapshots(),
+              stream:
+                  firestore
+                      .collection(
+                        'activeHarvests',
+                      ) // Direct query to active items only
+                      .orderBy(
+                        'expiryDate',
+                        descending: false,
+                      ) // Soonest expiry first
+                      .limit(10)
+                      .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: CircularProgressIndicator(color: AppColors.primary700),
+                    child: CircularProgressIndicator(
+                      color: AppColors.primary700,
+                    ),
                   );
                 }
 
@@ -81,82 +102,133 @@ class ExpiryDashboard extends ConsumerWidget {
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: docs.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final doc = entry.value;
-                    final data = doc.data() as Map<String, dynamic>;
-                    final expiryDate = (data['expiryDate'] as Timestamp).toDate();
-                    final alertDate = (data['alertDate'] as Timestamp).toDate();
-                    final storageMethod = data['storageMethod'] as String;
-                    final totalHarvested = data['totalHarvested'] as int;
+                  children:
+                      docs.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final doc = entry.value;
+                        final data = doc.data() as Map<String, dynamic>;
+                        final expiryDate =
+                            (data['expiryDate'] as Timestamp).toDate();
+                        final alertDate =
+                            (data['alertDate'] as Timestamp).toDate();
+                        final storageMethod = data['storageMethod'] as String;
+                        final totalHarvested = data['totalHarvested'] as int;
 
-                    final daysToExpiry = expiryDate.difference(now).inDays;
-                    final isExpiringSoon = now.isAfter(alertDate);
+                        final daysToExpiry = expiryDate.difference(now).inDays;
+                        final isExpiringSoon = now.isAfter(alertDate);
 
-                    Color statusColor = isExpiringSoon ? Colors.orange : Colors.green;
-                    String statusText = '$daysToExpiry days left';
+                        Color statusColor =
+                            isExpiringSoon ? Colors.orange : Colors.green;
+                        String statusText = '$daysToExpiry days left';
 
-                    final showBorder = docs.length > 1 && index < docs.length - 1;
+                        final showBorder =
+                            docs.length > 1 && index < docs.length - 1;
 
-                    return Container(
-                      decoration: showBorder ? BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: const Color(0xFFE0E0E0),
-                            width: 1.0,
-                          ),
-                        ),
-                      ) : null,
-                      padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        return GestureDetector(
+                          onTap:
+                              () => _showHarvestDetails(
+                                context,
+                                data,
+                                ref,
+                                doc.id,
+                              ),
+                          child: Container(
+                            decoration:
+                                showBorder
+                                    ? BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: const Color(0xFFE0E0E0),
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                    )
+                                    : null,
+                            padding: const EdgeInsets.only(
+                              bottom: 8.0,
+                              top: 8.0,
+                            ),
+                            child: Row(
                               children: [
-                                Text(
-                                  'Expires: ${DateFormat('MMM d, yyyy').format(expiryDate)}',
-                                  style: TextStyle(
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.secondary900,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Expires: ${DateFormat('MMM d, yyyy').format(expiryDate)}',
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.secondary900,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '$storageMethod • $totalHarvested tubers',
+                                        style: TextStyle(
+                                          fontSize: 12.0,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.secondary900
+                                              .withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '$storageMethod • $totalHarvested tubers',
-                                  style: TextStyle(
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.secondary900.withOpacity(0.7),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: statusColor.withOpacity(0.3),
+                                      width: 0.5,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    statusText,
+                                    style: TextStyle(
+                                      color: statusColor,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                // Action button
+                                GestureDetector(
+                                  onTap:
+                                      () => HarvestActions.showActionMenu(
+                                        context,
+                                        ref,
+                                        doc.id,
+                                      ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.secondary900.withOpacity(
+                                        0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Icon(
+                                      Icons.more_vert,
+                                      size: 16,
+                                      color: AppColors.secondary900.withOpacity(
+                                        0.7,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: statusColor.withOpacity(0.3),
-                                width: 0.5,
-                              ),
-                            ),
-                            child: Text(
-                              statusText,
-                              style: TextStyle(
-                                color: statusColor,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
                 );
               },
             ),
