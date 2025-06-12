@@ -29,6 +29,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   Widget build(BuildContext context) {
     final notificationsAsync = ref.watch(notificationsStreamProvider);
     final notificationService = ref.read(notificationServiceProvider);
+    final weatherNotificationService = ref.read(weatherNotificationServiceProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -62,6 +63,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             child: TextButton(
               onPressed: () {
                 notificationService.cleanupOldNotifications();
+                weatherNotificationService.cleanupOldWeatherNotifications();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Old notifications cleared'),
@@ -245,6 +247,30 @@ class NotificationCard extends StatelessWidget {
                           height: 1.3,
                         ),
                       ),
+                      if (notification.type == 'weather_alert' && 
+                          notification.data.containsKey('severity'))
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: _getSeverityColor().withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: _getSeverityColor().withOpacity(0.3),
+                                width: 0.5,
+                              ),
+                            ),
+                            child: Text(
+                              '${notification.data['severity']?.toString().toUpperCase()} SEVERITY',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: _getSeverityColor(),
+                              ),
+                            ),
+                          ),
+                        ),
                       SizedBox(height: 8),
                       Text(
                         _formatTime(notification.createdAt),
@@ -277,8 +303,38 @@ class NotificationCard extends StatelessWidget {
           return Colors.blue;
         }
         return AppColors.primary700;
+      case 'weather_alert':
+        final condition = notification.data['condition'] as String? ?? '';
+        switch (condition) {
+          case 'heavy_rain':
+          case 'severe_storm':
+          case 'flood_risk':
+            return Colors.red;
+          case 'strong_wind':
+          case 'extreme_heat':
+          case 'drought':
+            return Colors.orange;
+          case 'moderate_rain':
+          case 'heavy_fog':
+            return Colors.blue;
+          default:
+            return Colors.purple;
+        }
       default:
         return AppColors.primary700;
+    }
+  }
+
+  Color _getSeverityColor() {
+    final severity = notification.data['severity'] as String? ?? 'low';
+    switch (severity) {
+      case 'high':
+        return Colors.red;
+      case 'medium':
+        return Colors.orange;
+      case 'low':
+      default:
+        return Colors.blue;
     }
   }
 
@@ -295,6 +351,28 @@ class NotificationCard extends StatelessWidget {
           return Icons.sell_outlined;
         }
         return Icons.history;
+      case 'weather_alert':
+        final condition = notification.data['condition'] as String? ?? '';
+        switch (condition) {
+          case 'heavy_rain':
+            return Icons.thunderstorm_outlined;
+          case 'strong_wind':
+            return Icons.air_outlined;
+          case 'extreme_heat':
+            return Icons.wb_sunny_outlined;
+          case 'flood_risk':
+            return Icons.flood_outlined;
+          case 'drought':
+            return Icons.wb_sunny;
+          case 'severe_storm':
+            return Icons.storm_outlined;
+          case 'heavy_fog':
+            return Icons.foggy;
+          case 'moderate_rain':
+            return Icons.grain_outlined;
+          default:
+            return Icons.wb_cloudy_outlined;
+        }
       default:
         return Icons.notifications_outlined;
     }

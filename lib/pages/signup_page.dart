@@ -75,7 +75,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        errorMessage = 'Unexpected error occured';
+        errorMessage = 'Unexpected error occurred';
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(

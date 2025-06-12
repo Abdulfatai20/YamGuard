@@ -2,12 +2,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yam_guard/model/notification_item.dart';
 import 'package:yam_guard/providers/firestore_provider.dart';
-import 'package:yam_guard/services/notification_service.dart';
+import 'package:yam_guard/services/expiration_notification_service.dart';
+import 'package:yam_guard/services/weather_notification_service.dart';
+import 'package:yam_guard/services/weather_service.dart';
 
 // Provider for notification service
-final notificationServiceProvider = Provider<NotificationService>((ref) {
+final notificationServiceProvider = Provider<ExpirationNotificationService>((ref) {
   final firestore = ref.read(firestoreProvider);
-  return NotificationService(firestore);
+  return ExpirationNotificationService(firestore);
+});
+
+// Provider for weather service
+final weatherServiceProvider = Provider<WeatherService>((ref) {
+  return WeatherService();
+});
+
+// Provider for weather notification service
+final weatherNotificationServiceProvider = Provider<WeatherNotificationService>((ref) {
+  final notificationService = ref.read(notificationServiceProvider);
+  final weatherService = ref.read(weatherServiceProvider);
+  final firestore = ref.read(firestoreProvider);
+  return WeatherNotificationService(notificationService, weatherService, firestore);
 });
 
 // Provider for notifications stream
@@ -46,4 +61,22 @@ final expiringHarvestCheckerProvider = Provider<void>((ref) {
   
   // Also check immediately when app starts
   notificationService.checkExpiringHarvests();
+});
+
+// Provider for checking weather conditions periodically
+final weatherAlertCheckerProvider = Provider<void>((ref) {
+  final weatherNotificationService = ref.read(weatherNotificationServiceProvider);
+  
+  // Check every 6 hours for extreme weather conditions
+  Stream.periodic(Duration(hours: 6)).listen((_) {
+    weatherNotificationService.checkExtremeWeatherConditions();
+  });
+  
+  // Also check immediately when app starts
+  weatherNotificationService.checkExtremeWeatherConditions();
+  
+  // Clean up old weather notifications once daily
+  Stream.periodic(Duration(days: 1)).listen((_) {
+    weatherNotificationService.cleanupOldWeatherNotifications();
+  });
 });

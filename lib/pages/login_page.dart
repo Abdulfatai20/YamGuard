@@ -23,14 +23,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   String errorMessage = '';
 
   bool _showLogoutSucessSnackbar = false;
+  bool _showAccountDeletedSnackbar = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final args = ModalRoute.of(context)?.settings.arguments;
+
     if (args == 'logged_out' && !_showLogoutSucessSnackbar) {
-          _showLogoutSucessSnackbar = true; // So it only shows once
+      _showLogoutSucessSnackbar = true; // So it only shows once
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -47,8 +49,26 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       });
       // You cannot reset the arguments directly; consider using a local flag or a state management solution
     }
-  }
 
+    if (args == 'account_deleted' && !_showAccountDeletedSnackbar) {
+      _showAccountDeletedSnackbar = true; // So it only shows once
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Account deleted successfully',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      });
+      // You cannot reset the arguments directly; consider using a local flag or a state management solution
+    }
+  }
 
   @override
   void dispose() {
@@ -94,7 +114,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               color: AppColors.white, // Yam greens
             ),
           ),
-           behavior: SnackBarBehavior.floating,
+          behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
         ),
       );

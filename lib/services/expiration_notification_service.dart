@@ -1,10 +1,10 @@
 // services/notification_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class NotificationService {
+class ExpirationNotificationService{
   final FirebaseFirestore _firestore;
 
-  NotificationService(this._firestore);
+  ExpirationNotificationService(this._firestore);
 
   // Create a notification
   Future<void> createNotification({
@@ -79,41 +79,69 @@ class NotificationService {
   Future<void> checkExpiringHarvests() async {
     try {
       final now = DateTime.now();
-      final twoDaysFromNow = now.add(Duration(days: 2));
-
-      // Query harvests that will expire within 2 days
-      final expiringHarvests = await _firestore
+      
+      // Query all active harvests and check their expiry dates
+      final activeHarvests = await _firestore
           .collection('activeHarvests')
-          .where('alertDate', isLessThanOrEqualTo: Timestamp.fromDate(now))
           .get();
 
-      for (final doc in expiringHarvests.docs) {
+      for (final doc in activeHarvests.docs) {
         final data = doc.data();
-        final expiryDate = (data['expiryDate'] as Timestamp).toDate();
-        final storageMethod = data['storageMethod'] as String;
-        final totalHarvested = data['totalHarvested'] as int;
         
-        // Check if we already created a notification for this harvest
-        final existingNotification = await _firestore
-            .collection('notifications')
-            .where('type', isEqualTo: 'expiring_soon')
-            .where('data.harvestId', isEqualTo: doc.id)
-            .get();
+        // Safely extract data with null checks
+        final expiryDateTimestamp = data['expiryDate'] as Timestamp?;
+        final storageMethod = data['storageMethod'] as String? ?? 'Unknown storage';
+        final totalHarvested = data['totalHarvested'] as int? ?? 0;
+        
+        // Skip if essential data is missing
+        if (expiryDateTimestamp == null) {
+          print('Skipping harvest ${doc.id}: missing expiryDate');
+          continue;
+        }
+        
+        final expiryDate = expiryDateTimestamp.toDate();
+        final daysLeft = expiryDate.difference(now).inDays;
+        
+        // Skip if harvest has already expired
+        if (expiryDate.isBefore(now)) {
+          print('Skipping harvest ${doc.id}: already expired');
+          continue;
+        }
+        
+        // Only create notification if harvest expires within 2 days (0, 1, or 2 days left)
+        if (daysLeft <= 2) {
+          // Check if we already created a notification for this harvest
+          final existingNotification = await _firestore
+              .collection('notifications')
+              .where('type', isEqualTo: 'expiring_soon')
+              .where('data.harvestId', isEqualTo: doc.id)
+              .get();
 
-        if (existingNotification.docs.isEmpty) {
-          final daysLeft = expiryDate.difference(now).inDays;
-          
-          await createNotification(
-            title: 'Harvest Expiring Soon!',
-            message: '$totalHarvested tubers ($storageMethod) expire in $daysLeft days',
-            type: 'expiring_soon',
-            data: {
-              'harvestId': doc.id,
-              'expiryDate': expiryDate.toIso8601String(),
-              'storageMethod': storageMethod,
-              'totalHarvested': totalHarvested,
-            },
-          );
+          if (existingNotification.docs.isEmpty) {
+            String message;
+            if (daysLeft == 0) {
+              message = '$totalHarvested tubers ($storageMethod) expire today!';
+            } else if (daysLeft == 1) {
+              message = '$totalHarvested tubers ($storageMethod) expire tomorrow!';
+            } else {
+              message = '$totalHarvested tubers ($storageMethod) expire in $daysLeft days';
+            }
+            
+            await createNotification(
+              title: 'Harvest Expiring Soon!',
+              message: message,
+              type: 'expiring_soon',
+              data: {
+                'harvestId': doc.id,
+                'expiryDate': expiryDate.toIso8601String(),
+                'storageMethod': storageMethod,
+                'totalHarvested': totalHarvested,
+                'daysLeft': daysLeft,
+              },
+            );
+            
+            print('Created expiring notification for harvest ${doc.id}: $daysLeft days left');
+          }
         }
       }
     } catch (e) {
@@ -143,6 +171,10 @@ class NotificationService {
       case 'sold':
         title = 'Harvest Sold';
         message = '$totalHarvested tubers ($storageMethod) marked as sold';
+        break;
+      default:
+        title = 'Harvest Updated';
+        message = '$totalHarvested tubers ($storageMethod) status changed to $status';
         break;
     }
 

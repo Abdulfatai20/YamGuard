@@ -2,6 +2,8 @@ String getWeatherImageFromFeeling(String feel) {
   switch (feel.toLowerCase()) {
     case 'stormy rain':
     return 'assets/images/stormy_rain.png';
+    case 'stormy winds':
+    return 'assets/images/stormy.png';
     case 'heavy rain':
     return 'assets/images/rainy.png';
     case 'rainy':
@@ -9,14 +11,12 @@ String getWeatherImageFromFeeling(String feel) {
     case 'light rain':
     return 'assets/images/light_rain.png';
     case 'harmattan':
-    return 'assets/images/stormy.png';
-    case 'stormy winds':
-    return 'assets/images/windy.png';
+    return 'assets/images/harmattan.png';
     case 'windy':
     return 'assets/images/windy.png';
     case 'very sunny':
     return 'assets/images/sunlight.png';
-    case 'sunny':
+    case 'mostly sunny':
       return 'assets/images/sunlight.png';
     case 'partly sunny':
       return 'assets/images/partly_sunny.png';

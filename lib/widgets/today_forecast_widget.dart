@@ -81,7 +81,7 @@ class TodayForecastWidget extends ConsumerWidget {
                     child: Column(
                       children: [
                         Image.asset(
-                          'assets/images/lightbulb.png',
+                          'assets/images/megaphone.png',
                           width: 20,
                           height: 20,
                         ),
@@ -105,7 +105,7 @@ class TodayForecastWidget extends ConsumerWidget {
               (e, _) => Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
-                  'Failed to load today’s forecast: $e',
+                  'Failed to load today’s forecast',
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ),
