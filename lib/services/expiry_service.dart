@@ -1,26 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:yam_guard/auth/auth_service.dart';
 
 class ExpiryService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final AuthService _authService = AuthService();
 
-  
   // This method moves expired items from activeHarvests to expiredHarvests
   static Future<void> moveExpiredItems() async {
     final now = DateTime.now();
     final batch = _firestore.batch();
     
+    // Get current user ID
+    final userId = _authService.currentUser?.uid;
+    if (userId == null) {
+      print('❌ No authenticated user found');
+      return;
+    }
+    
     try {
-      print('🔄 Starting expiry cleanup at ${now.toString()}');
+      print('🔄 Starting expiry cleanup for user $userId at ${now.toString()}');
       
-      // Get all expired items from activeHarvests
+      // Get all expired items from activeHarvests for the current user
       final expiredQuery = await _firestore
           .collection('activeHarvests')
+          .where('userId', isEqualTo: userId) // Filter by user ID
           .where('expiryDate', isLessThan: Timestamp.fromDate(now))
           .get();
       
       if (expiredQuery.docs.isEmpty) {
-        print('✅ No expired items found');
+        print('✅ No expired items found for user $userId');
         return;
       }
       
@@ -32,6 +40,7 @@ class ExpiryService {
         batch.set(expiredRef, {
           ...data,
           'movedToExpiredAt': Timestamp.fromDate(now), // Track when moved
+          'status': 'expired', // Ensure status is set
         });
         
         // Remove from activeHarvests collection
@@ -39,10 +48,10 @@ class ExpiryService {
       }
       
       await batch.commit();
-      print('✅ Moved ${expiredQuery.docs.length} expired items successfully');
+      print('✅ Moved ${expiredQuery.docs.length} expired items successfully for user $userId');
       
     } catch (e) {
-      print('❌ Error moving expired items: $e');
+      print('❌ Error moving expired items for user $userId: $e');
     }
   }
   
@@ -68,4 +77,5 @@ class ExpiryService {
     
     return docRef.id;
   }
+
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yam_guard/auth/auth_service.dart';
 import 'package:yam_guard/providers/firestore_provider.dart';
 import 'package:yam_guard/themes/colors.dart';
 
@@ -39,7 +40,21 @@ class HarvestActions {
     if (shouldDelete == true) {
       try {
         final firestore = ref.read(firestoreProvider);
-        await firestore.collection(collection).doc(docId).delete();
+        final authService = AuthService();
+        final userId = authService.currentUser!.uid;
+
+        // Delete only if the document belongs to the current user
+        await firestore
+            .collection(collection)
+            .doc(docId)
+            .get()
+            .then((doc) async {
+          if (doc.exists && doc.data()?['userId'] == userId) {
+            await doc.reference.delete();
+          } else {
+            throw Exception('Document not found or access denied');
+          }
+        });
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -73,16 +88,25 @@ class HarvestActions {
   ) async {
     try {
       final firestore = ref.read(firestoreProvider);
+      final authService = AuthService();
+      final userId = authService.currentUser!.uid;
 
-      // Get the document from activeHarvests
-      final docSnapshot =
-          await firestore.collection('activeHarvests').doc(docId).get();
+      // Get the document from activeHarvests and verify ownership
+      final docSnapshot = await firestore
+          .collection('activeHarvests')
+          .doc(docId)
+          .get();
 
       if (!docSnapshot.exists) {
         throw Exception('Document not found');
       }
 
       final data = docSnapshot.data()!;
+      
+      // Check if document belongs to current user
+      if (data['userId'] != userId) {
+        throw Exception('Access denied');
+      }
 
       // Update the status and timestamp
       data['status'] = newStatus;
@@ -293,21 +317,31 @@ class HarvestActions {
   ) async {
     try {
       final firestore = ref.read(firestoreProvider);
+      final authService = AuthService();
+      final userId = authService.currentUser!.uid;
 
-      // Get the document from current collection
-      final docSnapshot =
-          await firestore.collection(currentCollection).doc(docId).get();
+      // Get the document from current collection and verify ownership
+      final docSnapshot = await firestore
+          .collection(currentCollection)
+          .doc(docId)
+          .get();
 
       if (!docSnapshot.exists) {
         throw Exception('Document not found');
       }
 
       final data = docSnapshot.data()!;
+      
+      // Check if document belongs to current user
+      if (data['userId'] != userId) {
+        throw Exception('Access denied');
+      }
 
       // Update the status back to active
       data['status'] = 'active';
       data['updatedAt'] = FieldValue.serverTimestamp();
       data.remove('completedAt'); // Remove completion timestamp
+      data.remove('movedToExpiredAt'); // Remove expired timestamp if exists
 
       // Use batch write for atomic operation
       final batch = firestore.batch();

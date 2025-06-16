@@ -1,4 +1,4 @@
-// Updated history_widget.dart with tap functionality
+// Updated history_widget.dart with simplified and more reliable approach
 // ignore_for_file: deprecated_member_use
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:yam_guard/actions/harvest_action.dart';
+import 'package:yam_guard/auth/auth_service.dart';
 import 'package:yam_guard/providers/firestore_provider.dart';
 import 'package:yam_guard/themes/colors.dart';
-import 'package:yam_guard/widgets/history_details_modal_widget.dart'; // Add this import
+import 'package:yam_guard/widgets/history_details_modal_widget.dart';
 
 class HistoryWidget extends ConsumerWidget {
   const HistoryWidget({super.key});
 
-  // Add this method to show history details
   void _showHistoryDetails(
     BuildContext context,
     Map<String, dynamic> data,
@@ -38,6 +38,8 @@ class HistoryWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final firestore = ref.read(firestoreProvider);
+    final authService = AuthService();
+    final userId = authService.currentUser!.uid;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 44),
@@ -63,9 +65,9 @@ class HistoryWidget extends ConsumerWidget {
             ),
             const SizedBox(height: 10),
 
-            // Combined stream from multiple collections
-            StreamBuilder<List<QuerySnapshot>>(
-              stream: _getCombinedHistoryStream(firestore),
+            // Use FutureBuilder instead of StreamBuilder for more reliability
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _getCombinedHistoryData(firestore, userId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -76,6 +78,7 @@ class HistoryWidget extends ConsumerWidget {
                 }
 
                 if (snapshot.hasError) {
+                  print('History error: ${snapshot.error}');
                   return Text(
                     'Error loading history',
                     style: TextStyle(
@@ -86,7 +89,7 @@ class HistoryWidget extends ConsumerWidget {
                   );
                 }
 
-                if (!snapshot.hasData) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Text(
                     'No history items yet',
                     style: TextStyle(
@@ -97,80 +100,29 @@ class HistoryWidget extends ConsumerWidget {
                   );
                 }
 
-                // Combine and sort all documents by completion/expiry date
-                final allDocs = <Map<String, dynamic>>[];
-                final snapshots = snapshot.data!;
-
-                for (int i = 0; i < snapshots.length; i++) {
-                  final querySnapshot = snapshots[i];
-                  final collectionName = _getCollectionName(i);
-
-                  for (final doc in querySnapshot.docs) {
-                    final data = doc.data() as Map<String, dynamic>;
-
-                    // Safe date extraction for sorting
-                    final sortDate = _getSortDate(data);
-
-                    if (sortDate != null) {
-                      allDocs.add({
-                        'doc': doc,
-                        'data': data,
-                        'collection': collectionName,
-                        'sortDate': sortDate,
-                      });
-                    }
-                  }
-                }
-
-                if (allDocs.isEmpty) {
-                  return Text(
-                    'No history items yet',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.secondary900,
-                    ),
-                  );
-                }
-
-                // Sort by most recent first
-                allDocs.sort((a, b) {
-                  final aDate = (a['sortDate'] as Timestamp).toDate();
-                  final bDate = (b['sortDate'] as Timestamp).toDate();
-                  return bDate.compareTo(aDate);
-                });
-
-                // Take only the latest 10 items
-                final displayDocs = allDocs.take(10).toList();
+                final historyItems = snapshot.data!;
                 final now = DateTime.now();
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: displayDocs.asMap().entries.map((entry) {
+                  children: historyItems.asMap().entries.map((entry) {
                     final index = entry.key;
                     final item = entry.value;
                     final doc = item['doc'];
                     final data = item['data'] as Map<String, dynamic>;
                     final collection = item['collection'] as String;
-                    final status = data['status'] as String? ?? 'completed';
+                    final status = data['status'] as String? ?? 
+                        (collection == 'expiredHarvests' ? 'expired' : 
+                         collection == 'consumedHarvests' ? 'consumed' : 'sold');
 
-                    // Safe date extraction for display
-                    final displayDate = _getDisplayDate(data);
-                    final storageMethod =
-                        data['storageMethod'] as String? ?? 'Unknown';
-                    final totalHarvested =
-                        data['totalHarvested'] as int? ?? 0;
+                    final displayDate = item['displayDate'] as DateTime?;
+                    final storageMethod = data['storageMethod'] as String? ?? 'Unknown';
+                    final totalHarvested = data['totalHarvested'] as int? ?? 0;
 
-                    final showBorder =
-                        displayDocs.length > 1 &&
-                        index < displayDocs.length - 1;
+                    final showBorder = historyItems.length > 1 && index < historyItems.length - 1;
 
                     // Get status info
-                    final statusInfo = _getStatusInfo(
-                      status,
-                      displayDate,
-                      now,
-                    );
+                    final statusInfo = _getStatusInfo(status, displayDate, now);
 
                     return GestureDetector(
                       onTap: () => _showHistoryDetails(
@@ -200,8 +152,7 @@ class HistoryWidget extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     displayDate != null
@@ -219,8 +170,7 @@ class HistoryWidget extends ConsumerWidget {
                                     style: TextStyle(
                                       fontSize: 12.0,
                                       fontWeight: FontWeight.w500,
-                                      color: AppColors.secondary900
-                                          .withOpacity(0.7),
+                                      color: AppColors.secondary900.withOpacity(0.7),
                                     ),
                                   ),
                                 ],
@@ -235,9 +185,7 @@ class HistoryWidget extends ConsumerWidget {
                                 color: statusInfo['color'].withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: statusInfo['color'].withOpacity(
-                                    0.3,
-                                  ),
+                                  color: statusInfo['color'].withOpacity(0.3),
                                   width: 0.5,
                                 ),
                               ),
@@ -253,28 +201,23 @@ class HistoryWidget extends ConsumerWidget {
                             const SizedBox(width: 8),
                             // Action button
                             GestureDetector(
-                              onTap: () =>
-                                  HarvestActions.showHistoryActionMenu(
-                                    context,
-                                    ref,
-                                    doc.id,
-                                    collection,
-                                    status,
-                                  ),
+                              onTap: () => HarvestActions.showHistoryActionMenu(
+                                context,
+                                ref,
+                                doc.id,
+                                collection,
+                                status,
+                              ),
                               child: Container(
                                 padding: EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondary900.withOpacity(
-                                    0.1,
-                                  ),
+                                  color: AppColors.secondary900.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Icon(
                                   Icons.more_vert,
                                   size: 16,
-                                  color: AppColors.secondary900.withOpacity(
-                                    0.7,
-                                  ),
+                                  color: AppColors.secondary900.withOpacity(0.7),
                                 ),
                               ),
                             ),
@@ -293,84 +236,131 @@ class HistoryWidget extends ConsumerWidget {
     );
   }
 
-  // Helper method to safely extract sort date
-  Timestamp? _getSortDate(Map<String, dynamic> data) {
-    // Try different possible timestamp fields
-    final candidates = [
-      data['completedAt'],
-      data['completedDate'],
-      data['movedToExpiredAt'],
-      data['expiryDate'],
-      data['updatedAt'],
-      data['createdAt'],
-    ];
-
-    for (final candidate in candidates) {
-      if (candidate != null && candidate is Timestamp) {
-        return candidate;
-      }
-    }
-    return null;
-  }
-
-  // Helper method to safely extract display date
-  DateTime? _getDisplayDate(Map<String, dynamic> data) {
-    final sortDate = _getSortDate(data);
-    return sortDate?.toDate();
-  }
-
-  // Combine streams from different collections
-  Stream<List<QuerySnapshot>> _getCombinedHistoryStream(
+  // Simplified approach using Future instead of complex streams
+  Future<List<Map<String, dynamic>>> _getCombinedHistoryData(
     FirebaseFirestore firestore,
-  ) {
-    return Stream.periodic(Duration(seconds: 1), (i) => i).asyncMap((_) async {
-      final futures = [
-        firestore
-            .collection('expiredHarvests')
-            .orderBy('movedToExpiredAt', descending: true)
-            .limit(5)
-            .get()
-            .catchError(
-              (e) =>
-                  firestore
-                      .collection('expiredHarvests')
-                      .orderBy('expiryDate', descending: true)
-                      .limit(5)
-                      .get(),
-            ),
-        firestore
-            .collection('consumedHarvests')
-            .orderBy('completedAt', descending: true)
-            .limit(5)
-            .get()
-            .catchError(
-              (e) => firestore.collection('consumedHarvests').limit(5).get(),
-            ),
-        firestore
-            .collection('soldHarvests')
-            .orderBy('completedAt', descending: true)
-            .limit(5)
-            .get()
-            .catchError(
-              (e) => firestore.collection('soldHarvests').limit(5).get(),
-            ),
-      ];
+    String userId,
+  ) async {
+    final allItems = <Map<String, dynamic>>[];
 
-      return await Future.wait(futures);
-    });
+    try {
+      // Get expired harvests - use simpler query without orderBy if index missing
+      try {
+        final expiredQuery = await firestore
+            .collection('expiredHarvests')
+            .where('userId', isEqualTo: userId)
+            .limit(5)
+            .get();
+        
+        for (final doc in expiredQuery.docs) {
+          final data = doc.data();
+          final displayDate = _extractDisplayDate(data, 'expired');
+          if (displayDate != null) {
+            allItems.add({
+              'doc': doc,
+              'data': data,
+              'collection': 'expiredHarvests',
+              'displayDate': displayDate,
+              'sortTimestamp': _dateToTimestamp(displayDate),
+            });
+          }
+        }
+      } catch (e) {
+        print('Error fetching expired harvests: $e');
+      }
+
+      // Get consumed harvests
+      try {
+        final consumedQuery = await firestore
+            .collection('consumedHarvests')
+            .where('userId', isEqualTo: userId)
+            .limit(5)
+            .get();
+        
+        for (final doc in consumedQuery.docs) {
+          final data = doc.data();
+          final displayDate = _extractDisplayDate(data, 'consumed');
+          if (displayDate != null) {
+            allItems.add({
+              'doc': doc,
+              'data': data,
+              'collection': 'consumedHarvests',
+              'displayDate': displayDate,
+              'sortTimestamp': _dateToTimestamp(displayDate),
+            });
+          }
+        }
+      } catch (e) {
+        print('Error fetching consumed harvests: $e');
+      }
+
+      // Get sold harvests
+      try {
+        final soldQuery = await firestore
+            .collection('soldHarvests')
+            .where('userId', isEqualTo: userId)
+            .limit(5)
+            .get();
+        
+        for (final doc in soldQuery.docs) {
+          final data = doc.data();
+          final displayDate = _extractDisplayDate(data, 'sold');
+          if (displayDate != null) {
+            allItems.add({
+              'doc': doc,
+              'data': data,
+              'collection': 'soldHarvests',
+              'displayDate': displayDate,
+              'sortTimestamp': _dateToTimestamp(displayDate),
+            });
+          }
+        }
+      } catch (e) {
+        print('Error fetching sold harvests: $e');
+      }
+
+      // Sort by most recent first
+      allItems.sort((a, b) {
+        final aTime = a['sortTimestamp'] as int;
+        final bTime = b['sortTimestamp'] as int;
+        return bTime.compareTo(aTime); // Most recent first
+      });
+
+      // Return top 10 items
+      return allItems.take(10).toList();
+      
+    } catch (e) {
+      print('Error in _getCombinedHistoryData: $e');
+      return [];
+    }
   }
 
-  String _getCollectionName(int index) {
-    switch (index) {
-      case 0:
-        return 'expiredHarvests';
-      case 1:
-        return 'consumedHarvests';
-      case 2:
-        return 'soldHarvests';
-      default:
-        return 'expiredHarvests';
+  // Helper to extract display date based on collection type
+  DateTime? _extractDisplayDate(Map<String, dynamic> data, String type) {
+    Timestamp? timestamp;
+    
+    switch (type) {
+      case 'expired':
+        timestamp = data['movedToExpiredAt'] as Timestamp? ?? 
+                   data['expiryDate'] as Timestamp?;
+        break;
+      case 'consumed':
+      case 'sold':
+        timestamp = data['completedAt'] as Timestamp? ?? 
+                   data['completedDate'] as Timestamp?;
+        break;
     }
+    
+    // Fallback to other timestamp fields
+    timestamp ??= data['updatedAt'] as Timestamp? ?? 
+                 data['createdAt'] as Timestamp?;
+    
+    return timestamp?.toDate();
+  }
+
+  // Convert DateTime to milliseconds for sorting
+  int _dateToTimestamp(DateTime date) {
+    return date.millisecondsSinceEpoch;
   }
 
   Map<String, dynamic> _getStatusInfo(
@@ -383,15 +373,13 @@ class HistoryWidget extends ConsumerWidget {
         return {
           'prefix': 'Consumed',
           'color': Colors.green,
-          'timeText':
-              displayDate != null ? _getTimeAgo(now, displayDate) : 'Unknown',
+          'timeText': displayDate != null ? _getTimeAgo(now, displayDate) : 'Unknown',
         };
       case 'sold':
         return {
           'prefix': 'Sold',
           'color': Colors.blue,
-          'timeText':
-              displayDate != null ? _getTimeAgo(now, displayDate) : 'Unknown',
+          'timeText': displayDate != null ? _getTimeAgo(now, displayDate) : 'Unknown',
         };
       case 'expired':
       default:

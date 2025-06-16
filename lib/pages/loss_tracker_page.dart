@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:yam_guard/auth/auth_service.dart';
 import 'package:yam_guard/providers/firestore_provider.dart';
 import 'package:yam_guard/reuse/underline_white_form.dart';
 import 'package:yam_guard/themes/colors.dart';
@@ -109,6 +110,15 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
         _isLoading = true;
       });
 
+      // Get user ID from AuthService
+      final authService = AuthService();
+      final userId = authService.currentUser?.uid;
+      
+      if (userId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      print('User ID: $userId');
       print('Getting firestore instance...');
       final firestore = ref.read(firestoreProvider);
 
@@ -144,6 +154,7 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
       print('Loss: $actualLoss ($lossPercentage%), Damage: $damagePercentage%');
 
       final data = {
+        'userId': userId, // Add user ID to the data
         'harvestDate': Timestamp.fromDate(harvestDate),
         'expiryDate': Timestamp.fromDate(expiryDate),
         'totalHarvested': totalHarvested,
@@ -209,7 +220,10 @@ class _LossTrackerPageState extends ConsumerState<LossTrackerPage> {
         errorMessage = 'Permission denied - check Firestore rules';
       } else if (e.toString().contains('network')) {
         errorMessage = 'Network error - check connection';
+      } else if (e.toString().contains('not authenticated')) {
+        errorMessage = 'Please sign in to save data';
       }
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

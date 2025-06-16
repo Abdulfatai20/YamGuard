@@ -2,20 +2,29 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yam_guard/services/expiration_notification_service.dart';
 import 'package:yam_guard/services/weather_service.dart';
+import 'package:yam_guard/auth/auth_service.dart';
 
 class WeatherNotificationService {
   final ExpirationNotificationService _notificationService;
   final WeatherService _weatherService;
   final FirebaseFirestore _firestore;
+  final AuthService _authService;
 
   WeatherNotificationService(
     this._notificationService,
     this._weatherService,
     this._firestore,
+    this._authService,
   );
+
+  // Get current user ID
+  String? get _currentUserId => _authService.currentUser?.uid;
 
   // Check for extreme weather conditions and create notifications
   Future<void> checkExtremeWeatherConditions() async {
+    final userId = _currentUserId;
+    if (userId == null) return;
+
     try {
       // Fetch full weather data including daily forecasts
       final weatherData = await _weatherService.fetchWeatherData();
@@ -24,7 +33,7 @@ class WeatherNotificationService {
       // Check tomorrow's weather (index 1)
       if (daily.length > 1) {
         final tomorrow = daily[1];
-        await _checkAndCreateWeatherAlert(tomorrow, 'tomorrow');
+        await _checkAndCreateWeatherAlert(tomorrow, 'tomorrow', userId);
       }
 
       // Check day after tomorrow's weather (index 2)
@@ -33,6 +42,7 @@ class WeatherNotificationService {
         await _checkAndCreateWeatherAlert(
           dayAfterTomorrow,
           'day_after_tomorrow',
+          userId,
         );
       }
     } catch (e) {
@@ -43,6 +53,7 @@ class WeatherNotificationService {
   Future<void> _checkAndCreateWeatherAlert(
     Map<String, dynamic> dayData,
     String timeframe,
+    String userId,
   ) async {
     final weatherCondition = dayData['weather'][0];
     final description =
@@ -78,10 +89,11 @@ class WeatherNotificationService {
     );
 
     if (weatherAlert != null) {
-      // Check if we already created a notification for this date and condition
+      // Check if we already created a notification for this date and condition for this user
       final existingNotification =
           await _firestore
               .collection('notifications')
+              .where('userId', isEqualTo: userId)
               .where('type', isEqualTo: 'weather_alert')
               .where('data.alertDate', isEqualTo: alertDate.toIso8601String())
               .where('data.condition', isEqualTo: weatherAlert['condition'])
@@ -213,13 +225,17 @@ class WeatherNotificationService {
     return null; // No extreme weather detected
   }
 
-  // Clean up old weather notifications (older than 3 days)
+  // Clean up old weather notifications for current user only (older than 3 days)
   Future<void> cleanupOldWeatherNotifications() async {
+    final userId = _currentUserId;
+    if (userId == null) return;
+
     try {
-      final threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
+      final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3));
       final oldWeatherNotifications =
           await _firestore
               .collection('notifications')
+              .where('userId', isEqualTo: userId)
               .where('type', isEqualTo: 'weather_alert')
               .where('createdAt', isLessThan: Timestamp.fromDate(threeDaysAgo))
               .get();

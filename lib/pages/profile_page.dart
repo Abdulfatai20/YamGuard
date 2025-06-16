@@ -14,11 +14,14 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _deletePasswordController = TextEditingController();
+  final TextEditingController _deletePasswordController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -33,210 +36,216 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        content: const Text(
-          'Are you sure you want to log out?',
-          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.secondary900),
+      builder:
+          (context) => AlertDialog(
+            content: const Text(
+              'Are you sure you want to log out?',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: AppColors.secondary900),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary700,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  logout();
+                },
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: AppColors.white),
+                ),
+              ),
+            ],
+            backgroundColor: AppColors.white,
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary700,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              logout();
-            },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: AppColors.white),
-            ),
-          ),
-        ],
-        backgroundColor: AppColors.white,
-      ),
     );
   }
 
   void _showChangePasswordDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Change Password',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _currentPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Current Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _newPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'New Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _confirmPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Confirm New Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              _currentPasswordController.clear();
-              _newPasswordController.clear();
-              _confirmPasswordController.clear();
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.secondary900),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary700,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              changePassword();
-            },
-            child: const Text(
+      builder:
+          (context) => AlertDialog(
+            title: const Text(
               'Change Password',
-              style: TextStyle(color: AppColors.white),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _currentPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Current Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _newPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'New Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Confirm New Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _currentPasswordController.clear();
+                  _newPasswordController.clear();
+                  _confirmPasswordController.clear();
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: AppColors.secondary900),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary700,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  changePassword();
+                },
+                child: const Text(
+                  'Change Password',
+                  style: TextStyle(color: AppColors.white),
+                ),
+              ),
+            ],
+            backgroundColor: AppColors.white,
           ),
-        ],
-        backgroundColor: AppColors.white,
-      ),
     );
   }
 
   void _showUpdateUsernameDialog(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
     _usernameController.text = currentUser?.displayName ?? '';
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Update Username',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        content: TextField(
-          controller: _usernameController,
-          decoration: const InputDecoration(
-            labelText: 'Username',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              _usernameController.clear();
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.secondary900),
+      builder:
+          (context) => AlertDialog(
+            title: const Text(
+              'Update Username',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary700,
+            content: TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
             ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              updateUsername();
-            },
-            child: const Text(
-              'Update',
-              style: TextStyle(color: AppColors.white),
-            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _usernameController.clear();
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: AppColors.secondary900),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary700,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  updateUsername();
+                },
+                child: const Text(
+                  'Update',
+                  style: TextStyle(color: AppColors.white),
+                ),
+              ),
+            ],
+            backgroundColor: AppColors.white,
           ),
-        ],
-        backgroundColor: AppColors.white,
-      ),
     );
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Delete Account',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.red),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'This action cannot be undone. Please enter your password to confirm account deletion.',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _deletePasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
+      builder:
+          (context) => AlertDialog(
+            title: const Text(
+              'Delete Account',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
               ),
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              _deletePasswordController.clear();
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.secondary900),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'This action cannot be undone. Please enter your password to confirm account deletion.',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _deletePasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
             ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _deletePasswordController.clear();
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: AppColors.secondary900),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  deleteAccount();
+                },
+                child: const Text(
+                  'Delete Account',
+                  style: TextStyle(color: AppColors.white),
+                ),
+              ),
+            ],
+            backgroundColor: AppColors.white,
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              deleteAccount();
-            },
-            child: const Text(
-              'Delete Account',
-              style: TextStyle(color: AppColors.white),
-            ),
-          ),
-        ],
-        backgroundColor: AppColors.white,
-      ),
     );
   }
 
@@ -302,7 +311,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     final auth = ref.read(authServiceProvider);
     final currentUser = FirebaseAuth.instance.currentUser;
-    
+
     if (currentUser?.email == null) {
       _showSnackBar('User email not found', Colors.red);
       return;
@@ -336,6 +345,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Future<void> updateUsername() async {
+
     if (_usernameController.text.trim().isEmpty) {
       _showSnackBar('Username cannot be empty', Colors.red);
       return;
@@ -366,7 +376,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     final auth = ref.read(authServiceProvider);
     final currentUser = FirebaseAuth.instance.currentUser;
-    
+
     if (currentUser?.email == null) {
       _showSnackBar('User email not found', Colors.red);
       return;
@@ -453,7 +463,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
     final displayName = currentUser?.displayName ?? 'User';
-    
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -528,17 +538,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               const SizedBox(height: 20),
                               OutlinedShadowButton(
                                 text: 'Change Password',
-                                onPressed: () => _showChangePasswordDialog(context),
+                                onPressed:
+                                    () => _showChangePasswordDialog(context),
                               ),
                               const SizedBox(height: 20),
                               OutlinedShadowButton(
                                 text: 'Update Username',
-                                onPressed: () => _showUpdateUsernameDialog(context),
+                                onPressed:
+                                    () => _showUpdateUsernameDialog(context),
                               ),
                               const SizedBox(height: 20),
                               OutlinedShadowButton(
                                 text: 'Delete Account',
-                                onPressed: () => _showDeleteAccountDialog(context),
+                                onPressed:
+                                    () => _showDeleteAccountDialog(context),
                               ),
                             ],
                           ),
