@@ -82,7 +82,7 @@ class ForecastPage extends ConsumerWidget {
               loading: () => const CircularProgressIndicator(),
               error: (err, _) => Padding(
                 padding: const EdgeInsets.all(20),
-                child: Text('Failed to load forecast data', style: TextStyle(fontWeight: FontWeight.w500),),
+                child: Text('Failed to load forecast data', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.red),),
               ),
             ),
           ],

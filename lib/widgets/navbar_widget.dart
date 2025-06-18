@@ -16,7 +16,6 @@ class NavbarWidget extends StatelessWidget {
     final navItems = [
       {'icon': 'assets/icons/Forecast.png', 'label': 'Forecast'},
       {'icon': 'assets/icons/loss_tracker.png', 'label': 'Loss Tracker'},
-      {'icon': 'assets/icons/storage_tips.png', 'label': 'Storage Tips'},
       {'icon': 'assets/icons/Profile.png', 'label': 'Profile'},
     ];
     return Container(

@@ -106,7 +106,8 @@ class TodayForecastWidget extends ConsumerWidget {
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
                   'Failed to load today’s forecast',
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  style: TextStyle(fontWeight: FontWeight.w500, color: Colors.red),
+                  textAlign: TextAlign.center,
                 ),
               ),
         ),

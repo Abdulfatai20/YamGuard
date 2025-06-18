@@ -2,87 +2,86 @@ Map<String, String> getTipsByFeel(String weather) {
   switch (weather.toLowerCase()) {
     case 'very sunny':
       return {
-        'advice': 'Perfect drying weather! Strong sun helps cure harvested yams and prevents rot.',
-        'action': 'Harvest mature yams and spread them in sun to dry. Check stored yams for moisture. Avoid planting - soil may be too hot.',
+        'advice': 'Very hot sun today! Good for drying yam. Hot sun stops yam from going bad.',
+        'action': 'Harvest ready yam and put in sun to dry. Check old yam for water. Don\'t plant today - ground too hot.',
       };
     
     case 'mostly sunny':
       return {
-        'advice': 'Excellent growing conditions. Strong sun promotes healthy yam vine growth.',
-        'action': 'Good day for weeding and adding organic manure. Check if soil needs watering. Harvest any ready yams.',
+        'advice': 'Good sun today. Yam plants grow well in this sun.',
+        'action': 'Remove weeds around yam. Add compost if you have. Check if yam needs water. Harvest any ready yam.',
       };
     
     case 'partly sunny':
       return {
-        'advice': 'Good balance of sun and clouds. Yam vines grow well without stress from intense heat.',
-        'action': 'Check farm for pests and diseases. Apply fertilizer if needed. Good day for routine farm maintenance.',
+        'advice': 'Sun and small clouds. Very good for yam plants. Not too hot.',
+        'action': 'Look for insects on yam leaves. Add fertilizer if you have. Good day to work on farm.',
       };
       
     case 'partly cloudy':
       return {
-        'advice': 'Mild conditions are good for yam growth. Less water stress on plants.',
-        'action': 'Inspect vines for pest damage. Remove weeds that compete for nutrients. Check staking needs.',
+        'advice': 'Small clouds in sky. Good for yam. Plants not too hot.',
+        'action': 'Check yam leaves for insects. Remove weeds. Check if yam sticks need fixing.',
       };
     
     case 'mostly cloudy':
       return {
-        'advice': 'Cloudy skies reduce heat stress but may increase humidity and disease risk.',
-        'action': 'Check for fungal diseases on leaves. Remove infected plants. Ensure good air circulation around vines.',
+        'advice': 'Many clouds today. Good for yam but watch for sickness on leaves.',
+        'action': 'Look for spots on yam leaves. Remove sick plants. Make sure air moves around plants.',
       };
     
     case 'cloudy':
       return {
-        'advice': 'Overcast conditions can encourage fungal problems but reduce plant stress.',
-        'action': 'Monitor for leaf spot and other diseases. Avoid watering unless soil is dry. Check drainage.',
+        'advice': 'Sky covered with clouds. Can cause yam leaves to get sick.',
+        'action': 'Check yam leaves for disease. Don\'t water unless ground is dry. Check water flows away.',
       };
     
     case 'light rain':
       return {
-        'advice': 'Gentle rain provides good moisture for yam growth without waterlogging.',
-        'action': 'Good time for planting yam setts. Check that water drains well. No need to water manually.',
+        'advice': 'Small rain is good for yam. Gives water without flooding.',
+        'action': 'Good time to plant yam pieces. Check water goes away well. No need to water today.',
       };
     
     case 'rainy':
       return {
-        'advice': 'Moderate rain helps yam growth but creates muddy conditions.',
-        'action': 'Stay off wet farm to avoid soil compaction. Check drainage channels. Monitor stored yams for moisture.',
+        'advice': 'Rain helps yam grow but makes farm muddy.',
+        'action': 'Don\'t walk on wet farm - you spoil soil. Check water flows away. Check stored yam for water.',
       };
     
     case 'heavy rain':
       return {
-        'advice': 'Too much water can cause yam rot and soil erosion. Risk of waterlogging.',
-        'action': 'Avoid farm work. Check yam storage for leaks. Clear blocked drainage. Watch for soil erosion.',
+        'advice': 'Too much rain! Can make yam rot and wash away soil.',
+        'action': 'Don\'t work on farm. Check yam store for leaks. Clear blocked water ways. Watch for washing away.',
       };
     
     case 'stormy rain':
       return {
-        'advice': 'Heavy storms can flood farms and damage crops. Risk of losing entire harvest.',
-        'action': 'Move harvested yams to high, dry ground. Check building roofs for leaks. Stay indoors for safety.',
+        'advice': 'Very bad rain and wind! Can flood farm and destroy yam.',
+        'action': 'Move harvested yam to high, dry place. Check roof for holes. Stay inside to be safe.',
       };
     
     case 'windy':
       return {
-        'advice': 'Strong winds can break yam vines and damage staking systems.',
-        'action': 'Reinforce vine supports and stakes. Tie loose vines securely. Check for broken branches.',
+        'advice': 'Strong wind can break yam vines and knock down sticks.',
+        'action': 'Make vine supports strong. Tie loose vines tight. Check for broken sticks.',
       };
     
     case 'stormy winds':
       return {
-        'advice': 'Very strong winds can destroy entire yam farms and damage storage buildings.',
-        'action': 'Secure all farm equipment. Reinforce yam storage buildings. Check and repair damaged stakes immediately.',
+        'advice': 'Very strong wind! Can destroy yam farm and damage storage.',
+        'action': 'Keep all farm tools safe. Make yam storage strong. Fix broken sticks now.',
       };
     
     case 'harmattan':
       return {
-        'advice': 'Dry harmattan air is excellent for drying and storing yams but can stress growing plants.',
-        'action': 'Perfect time to dry harvested yams. Cover stored yams to prevent over-drying. Water young plants if soil is very dry.',
+        'advice': 'Dry harmattan wind. Very good for drying yam but can make growing plants dry.',
+        'action': 'Best time to dry harvested yam. Cover stored yam so not too dry. Water young plants if ground very dry.',
       };
     
     default:
       return {
-        'advice': 'Weather conditions are normal for your area.',
-        'action': 'Continue regular farm activities. Check yam growth and storage as usual.',
+        'advice': 'Normal weather for your area.',
+        'action': 'Do normal farm work. Check yam growth and storage as usual.',
       };
   }
 }
-

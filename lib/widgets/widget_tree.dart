@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:yam_guard/pages/forecast_page.dart';
 import 'package:yam_guard/pages/loss_tracker_page.dart';
 import 'package:yam_guard/pages/profile_page.dart';
-import 'package:yam_guard/pages/storage_tips_page.dart';
 import 'package:yam_guard/themes/colors.dart';
 import 'package:yam_guard/widgets/navbar_widget.dart';
 
@@ -18,7 +17,6 @@ class _WidgetTreeState extends State<WidgetTree> {
 final List<Widget> _pages = [
   ForecastPage(),
   LossTrackerPage(),
-  StorageTipsPage(),
   ProfilePage()
 ];
   bool _showLoginSuccessSnackbar = false;

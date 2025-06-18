@@ -14,9 +14,9 @@ String getAdviceForWeather(String description) {
   // Storm and heavy rain conditions (immediate action needed)
   if (lower.contains('storm') || lower.contains('thunder') || lower.contains('lightning')) {
     if (lower.contains('rain')) {
-      return 'Thunderstorms today! Secure equipment now and keep all yams under cover. No field work.';
+      return 'Big storm with rain might come today! Keep all yam covered now. Don\'t work outside.';
     }
-    return 'Storms expected today. Secure storage covers immediately and stay indoors during peak intensity.';
+    return 'Big storm might come today. Cover yam storage now and stay inside when it comes.';
   }
   
   // Heavy rain conditions (today's specific timing)
@@ -24,33 +24,33 @@ String getAdviceForWeather(String description) {
       lower.contains('heavy intensity rain') || 
       lower.contains('extreme rain')) {
     if (isPlantingSeason) {
-      return 'Heavy rain today - great for planted yams! Check low areas for waterlogging this evening.';
+      return 'Heavy rain might come today - good for planted yam! Check low places for too much water this evening.';
     }
     if (isHarvestSeason) {
-      return 'Heavy rain today. Don\'t harvest - wait for tomorrow. Move any drying yams to shelter now.';
+      return 'Heavy rain might fall today. Don\'t harvest yam - wait for tomorrow. Move drying yam to cover now.';
     }
-    return 'Heavy rain all day. No drying possible - focus on storage maintenance and barn checks.';
+    return 'Heavy rain might fall all day. Cannot dry yam - check storage and barns instead.';
   }
   
   // Light to moderate rain (today's timing matters)
   if (lower.contains('drizzle') || lower.contains('light rain')) {
     if (isDrySeason) {
-      return 'Light rain during harmattan today - unusual! Wait to see if it stops, then resume drying.';
+      return 'Small rain might come during harmattan today - not normal! Wait to see if it stops, then dry yam.';
     }
     if (isMorning) {
-      return 'Light rain this morning. May clear later - prepare yams for drying if sun comes out.';
+      return 'Small rain might come this morning. May stop later - get yam ready to dry if sun comes.';
     }
-    return 'Light rain today. Some farm work possible between showers - keep materials ready to cover.';
+    return 'Small rain might come today. Some farm work possible - keep covers ready.';
   }
   
   if (lower.contains('rain') || lower.contains('shower')) {
     if (isPlantingSeason) {
-      return 'Rain today - perfect timing for yam growth! Plan weeding for tomorrow after soil softens.';
+      return 'Rain might come today - good for growing yam! Plan to remove weeds tomorrow after ground softens.';
     }
     if (isMorning) {
-      return 'Rain expected today. Bring in any drying yams now and postpone spreading new ones.';
+      return 'Rain might come today. Bring drying yam inside now and don\'t spread new ones.';
     }
-    return 'Rainy day ahead. No drying today - good time for barn organization and equipment maintenance.';
+    return 'Rain might fall today. Cannot dry yam - good time to arrange barn and fix tools.';
   }
   
   // Clear and sunny conditions (maximize today's opportunity)
@@ -58,96 +58,70 @@ String getAdviceForWeather(String description) {
       (lower.contains('sun') && !lower.contains('cloudy'))) {
     if (isDrySeason) {
       if (isMorning) {
-        return 'Perfect harmattan sun today! Start spreading yams early - excellent drying day ahead.';
+        return 'Good harmattan sun might come today! Start spreading yam early - should be good drying day.';
       }
-      return 'Brilliant sunshine all day! Maximum drying opportunity - work until sunset, collect at dusk.';
+      return 'Good sunshine might last all day! Great chance to dry yam - work until sunset, collect at night.';
     }
     if (isHarvestSeason) {
-      return 'Excellent sun today! Harvest early morning, spread immediately for drying. Collect before evening.';
+      return 'Good sun might come today! Harvest yam early morning, spread quickly for drying. Collect before evening.';
     }
     if (isMorning) {
-      return 'Beautiful sunny day ahead! Start drying yams now - should be perfect all day.';
+      return 'Good sunny day might come! Start drying yam now - should be good all day.';
     }
-    return 'Great sunshine today! Spread yams for drying and plan other outdoor farm work.';
+    return 'Good sunshine might come today! Spread yam for drying and do other outside farm work.';
   }
   
   // Harmattan and dusty conditions (today's specific actions)
   if (lower.contains('dust') || lower.contains('sand') || lower.contains('haze')) {
     if (isDrySeason) {
-      return 'Heavy harmattan dust today. Still good for drying but cover stored yams to prevent dust settling.';
+      return 'Heavy harmattan dust might come today. Still good for drying but cover stored yam so dust don\'t settle.';
     }
-    return 'Dusty conditions today - protect stored yams and check for cracks in yesterday\'s dried batch.';
+    return 'Dusty air might come today - protect stored yam and check yesterday\'s dried yam for cracks.';
   }
   
   if (lower.contains('fog') || lower.contains('mist')) {
     if (isMorning) {
-      return 'Foggy start today - wait until it clears around 10am before spreading yams to dry.';
+      return 'Fog might come early today - wait until it clears around 10am before spreading yam to dry.';
     }
-    return 'Misty conditions today. Check stored yams for excess moisture and ensure good ventilation.';
+    return 'Misty air might come today. Check stored yam for too much water and make sure air moves well.';
   }
   
   // Cloudy conditions (today's opportunities)
   if (lower.contains('overcast')) {
-    return 'Completely overcast today - no drying possible. Perfect day for sorting, cleaning storage areas.';
+    return 'Sky might be completely covered today - cannot dry yam. Good day to sort and clean storage.';
   }
   
   if (lower.contains('cloud')) {
     if (isDrySeason) {
-      return 'Cloudy harmattan day - less intense sun but still try drying if no rain expected.';
+      return 'Cloudy harmattan day might come - less hot sun but still try drying if no rain expected.';
     }
     if (isAfternoon) {
-      return 'Cloudy afternoon ahead - limited drying time. Focus on maintenance and planning tomorrow.';
+      return 'Cloudy afternoon might come - small time for drying. Work on fixing things and plan tomorrow.';
     }
-    return 'Cloudy today - not ideal for drying. Good day for yam sorting and storage organization.';
+    return 'Cloudy day might come - not good for drying. Good day to sort yam and arrange storage.';
   }
   
   // Windy conditions (today's precautions)
   if (lower.contains('wind') || lower.contains('breezy')) {
     if (isDrySeason) {
-      return 'Windy harmattan day - normal for season. Secure light covers but continue drying operations.';
+      return 'Windy harmattan day might come - normal for this time. Keep covers tight but continue drying.';
     }
-    return 'Very windy today. Secure all storage covers now and watch for weather changes this evening.';
+    return 'Strong wind might come today. Tie down all storage covers now and watch for weather changes tonight.';
   }
   
   // Today's seasonal defaults
   if (isDrySeason) {
-    return 'Typical harmattan day - monitor conditions and make the most of dry weather for yam processing.';
+    return 'Normal harmattan day might come - watch weather and use dry weather well for yam work.';
   }
   
   if (isPlantingSeason) {
-    return 'Good planting season weather today. Check soil moisture and plan any planting activities.';
+    return 'Good planting time weather might come today. Check ground water and plan any planting work.';
   }
   
   if (isHarvestSeason) {
-    return 'Harvest season conditions today. Assess fields and plan harvesting based on current weather.';
+    return 'Harvest time weather might come today. Check farm and plan cutting yam based on weather.';
   }
   
   // General today fallback
-  return 'Mixed conditions today. Stay flexible and adjust farm activities based on changing weather.';
+  return 'Mixed weather might come today. Be ready to change farm work based on weather changes.';
 }
-
-// String getAdviceForWeather(String description) {
-//   final lower = description.toLowerCase();
-
-//   // Check more specific conditions first
-//   if ((lower.contains('heavy') && lower.contains('rain')) || lower.contains('heavy intensity rain')) {
-//     return 'Heavy rain expected. Secure barns and avoid drying.';
-//   }
-//   if (lower.contains('rain')) {
-//     return 'Rain likely. Keep yam covered or inside storage.';
-//   }
-//   if (lower.contains('cloud')) {
-//     return 'Cloudy today – less sun. Delay drying yams.';
-//   }
-//   if (lower.contains('clear') || lower.contains('sun')) {
-//     return 'Good sun today. You can spread yam to dry.';
-//   }
-//   if (lower.contains('fog') || lower.contains('haze') || lower.contains('dust')) {
-//     return 'Dry air. Check yam in storage for cracks.';
-//   }
-//   if (lower.contains('wind')) {
-//     return 'Wind’s strong. Tie down storage covers.';
-//   }
-
-//   return 'Stay alert. Weather may affect yam farming.';
-// }

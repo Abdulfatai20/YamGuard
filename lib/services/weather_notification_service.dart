@@ -136,9 +136,9 @@ class WeatherNotificationService {
         precipitation > 10.0 ||
         mainCondition == 'thunderstorm') {
       return {
-        'title': 'Heavy Rain Alert! ⛈️',
+        'title': 'Heavy Rain Coming! ⛈️',
         'message':
-            'Heavy rain expected $timeframe. Secure yam storage and avoid drying.',
+            'Heavy rain might come $timeframe. Keep yam covered and don\'t dry outside.',
         'condition': 'heavy_rain',
         'severity': 'high',
       };
@@ -147,9 +147,9 @@ class WeatherNotificationService {
     // Strong Wind Alert
     if (windSpeed > 10.0 || description.contains('wind')) {
       return {
-        'title': 'Strong Wind Alert! 💨',
+        'title': 'Strong Wind Coming! 💨',
         'message':
-            'Strong winds expected $timeframe. Secure storage covers and drying areas.',
+            'Strong wind might come $timeframe. Tie down covers and make drying area safe.',
         'condition': 'strong_wind',
         'severity': 'medium',
       };
@@ -158,9 +158,9 @@ class WeatherNotificationService {
     // Extreme Heat Alert
     if (tempMax > 38.0) {
       return {
-        'title': 'Extreme Heat Alert! 🌡️',
+        'title': 'Very Hot Day Coming! 🌡️',
         'message':
-            'Very hot weather $timeframe (${tempMax.round()}°C). Check yam storage for overheating.',
+            'Very hot weather $timeframe (${tempMax.round()}°C). Check yam storage - don\'t let it get too hot.',
         'condition': 'extreme_heat',
         'severity': 'medium',
       };
@@ -169,9 +169,9 @@ class WeatherNotificationService {
     // Flooding Risk Alert (Heavy rain + high humidity)
     if (precipitation > 5.0 && humidity > 85) {
       return {
-        'title': 'Flooding Risk Alert! 🌊',
+        'title': 'Flood Risk Coming! 🌊',
         'message':
-            'Heavy rain and high humidity $timeframe. Risk of flooding - elevate yam storage.',
+            'Heavy rain and wet air $timeframe. Water might flood - put yam higher up.',
         'condition': 'flood_risk',
         'severity': 'high',
       };
@@ -180,9 +180,9 @@ class WeatherNotificationService {
     // Drought Conditions Alert
     if (tempMax > 35.0 && humidity < 30 && precipitation == 0.0) {
       return {
-        'title': 'Drought Conditions Alert! ☀️',
+        'title': 'Very Dry Weather Coming! ☀️',
         'message':
-            'Very dry conditions $timeframe. Monitor yam storage for cracking and dehydration.',
+            'Very dry weather $timeframe. Watch stored yam for cracks and drying out.',
         'condition': 'drought',
         'severity': 'medium',
       };
@@ -192,9 +192,9 @@ class WeatherNotificationService {
     if (description.contains('hail') ||
         (mainCondition == 'thunderstorm' && windSpeed > 8.0)) {
       return {
-        'title': 'Severe Storm Alert! ⛈️',
+        'title': 'Big Storm Coming! ⛈️',
         'message':
-            'Severe storm with possible hail $timeframe. Move yam to secure indoor storage.',
+            'Big storm might come $timeframe. Move yam to strong indoor storage.',
         'condition': 'severe_storm',
         'severity': 'high',
       };
@@ -203,20 +203,20 @@ class WeatherNotificationService {
     // Fog/Low Visibility Alert
     if (description.contains('fog') || description.contains('mist')) {
       return {
-        'title': 'Heavy Fog Alert! 🌫️',
+        'title': 'Heavy Fog Coming! 🌫️',
         'message':
-            'Dense fog expected $timeframe. Avoid transporting yam - poor visibility.',
+            'Thick fog might come $timeframe. Don\'t transport yam - visibility low.',
         'condition': 'heavy_fog',
         'severity': 'low',
       };
     }
 
-    // Moderate Rain Alert (still important for yam farming)
+    // Moderate Rain Alert (still important for yam farming)s
     if (mainCondition == 'rain' && precipitation > 2.0) {
       return {
-        'title': 'Rain Alert! 🌧️',
+        'title': 'Rain Coming! 🌧️',
         'message':
-            'Moderate rain expected $timeframe. Cover drying yam and secure storage.',
+            'Rain might come $timeframe. Cover drying yam and make storage safe.',
         'condition': 'moderate_rain',
         'severity': 'low',
       };

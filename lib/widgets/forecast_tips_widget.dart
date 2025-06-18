@@ -43,21 +43,37 @@ class ForecastTipsWidget extends ConsumerWidget {
                   height: 30.0,
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  weatherData.when(
-                    data: (data) {
-                      final feel = getFeelsLikeWeather(data);
-                      final tips = getTipsByFeel(feel);
-                      return tips['action'] ?? 'Stay informed.';
-                    },
-                    loading: () => 'Loading forecast tips...',
-                    error: (e, _) => 'Could not load forecast tips.',
+                weatherData.when(
+                  data: (data) {
+                    final feel = getFeelsLikeWeather(data);
+                    final tips = getTipsByFeel(feel);
+                    return Text(
+                      tips['action'] ?? 'Stay informed.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.secondary900,
+                      ),
+                    );
+                  },
+                  loading: () => Text(
+                    'Loading forecast tips...',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.secondary900,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.secondary900,
+                  error: (e, _) => Text(
+                    'Could not load forecast tips.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
               ],
@@ -74,21 +90,35 @@ class ForecastTipsWidget extends ConsumerWidget {
                   height: 30.0,
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  weatherData.when(
-                    data: (data) {
-                      final feel = getFeelsLikeWeather(data);
-                      final tips = getTipsByFeel(feel);
-                      return tips['advice'] ?? 'No special advice today.';
-                    },
-                    loading: () => 'Loading forecast advice...',
-                    error: (e, _) => 'Could not load forecast advice.',
+                weatherData.when(
+                  data: (data) {
+                    final feel = getFeelsLikeWeather(data);
+                    final tips = getTipsByFeel(feel);
+                    return Text(
+                      tips['advice'] ?? 'No special advice today.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.secondary900,
+                      ),
+                    );
+                  },
+                  loading: () => Text(
+                    'Loading forecast advice...',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.secondary900,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.secondary900,
+                  error: (e, _) => Text(
+                    'Could not load forecast advice.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
               ],
