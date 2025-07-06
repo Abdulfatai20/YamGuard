@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yam_guard/pages/Yam_intelligence_page.dart';
 import 'package:yam_guard/pages/forecast_page.dart';
 import 'package:yam_guard/pages/loss_tracker_page.dart';
 import 'package:yam_guard/pages/profile_page.dart';
@@ -14,11 +15,12 @@ class WidgetTree extends StatefulWidget {
 
 class _WidgetTreeState extends State<WidgetTree> {
   int _currentIndex = 0;
-final List<Widget> _pages = [
-  ForecastPage(),
-  LossTrackerPage(),
-  ProfilePage()
-];
+  final List<Widget> _pages = [
+    YamIntelligencePage(),
+    ForecastPage(),
+    LossTrackerPage(),
+    ProfilePage(),
+  ];
   bool _showLoginSuccessSnackbar = false;
 
   @override
@@ -27,7 +29,7 @@ final List<Widget> _pages = [
 
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args == 'logged_in' && !_showLoginSuccessSnackbar) {
-          _showLoginSuccessSnackbar = true; // So it only shows once
+      _showLoginSuccessSnackbar = true; // So it only shows once
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(

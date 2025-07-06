@@ -1,0 +1,18 @@
+{
+  "avg_temp": {
+    "MAE": 2.45,
+    "RMSE": 2.78
+  },
+  "max_temp": {
+    "MAE": 1.54,
+    "RMSE": 1.97
+  },
+  "humidity": {
+    "MAE": 9.96,
+    "RMSE": 11.08
+  },
+  "rainfall": {
+    "MAE": 2.37,
+    "RMSE": 4.33
+  }
+}

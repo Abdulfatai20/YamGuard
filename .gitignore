@@ -1,3 +1,6 @@
+# FastAPI virtual environment
+fastapi_backend/venv/
+
 # Miscellaneous
 *.class
 *.log

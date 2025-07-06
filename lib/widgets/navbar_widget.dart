@@ -14,17 +14,18 @@ class NavbarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navItems = [
+      {'icon': 'assets/icons/Forecast.png', 'label': 'Yam AI'},
       {'icon': 'assets/icons/Forecast.png', 'label': 'Forecast'},
       {'icon': 'assets/icons/loss_tracker.png', 'label': 'Loss Tracker'},
       {'icon': 'assets/icons/Profile.png', 'label': 'Profile'},
     ];
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
-       decoration: BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white, // Navbar background color
         border: Border(
           top: BorderSide(
-            color: Color(0xB3BFBFBF),// Color: BFBFBF with 70% opacity
+            color: Color(0xB3BFBFBF), // Color: BFBFBF with 70% opacity
             width: 1, // Stroke width at the top
           ),
         ),
