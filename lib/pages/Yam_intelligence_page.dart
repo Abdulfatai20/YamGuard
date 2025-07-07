@@ -12,9 +12,7 @@ final yamRecommendationProvider =
       params,
     ) async {
       final response = await http.post(
-        Uri.parse(
-          'http://127.0.0.1:8000/recommendation/',
-        ), // Change to your backend URL
+        Uri.parse('http://127.0.0.1:8000/recommendation/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(params),
       );
@@ -376,17 +374,13 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
                                 ),
                                 const SizedBox(height: 20),
 
-                                // Storage Methods
+                                // Storage Methods with explanations
                                 _buildStorageMethodsCard(
                                   data['recommended_storage_methods'] as List,
+                                  data['selected_explanations'] as Map?,
                                 ),
 
                                 const SizedBox(height: 16),
-
-                                // Season
-                                // _buildSeasonCard(data['season'].toString()),
-
-                                // const SizedBox(height: 16),
 
                                 // Forecast Summary
                                 _buildForecastCard(data['forecast_summary']),
@@ -400,8 +394,14 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
 
                                 const SizedBox(height: 16),
 
-                                // Explanations
-                                _buildExplanationsCard(data['explanations']),
+                                // Not Recommended Explanations
+                                if (data['not_selected_explanations'] != null &&
+                                    (data['not_selected_explanations'] as Map)
+                                        .isNotEmpty)
+                                  _buildExplanationsCard(
+                                    data['not_selected_explanations'],
+                                    title: "Why others were not recommended",
+                                  ),
                               ],
                             ),
                           ),
@@ -482,153 +482,123 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
     );
   }
 
-  Widget _buildStorageMethodsCard(List storageMethods) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.primary700.withOpacity(0.1),
-            AppColors.primary700.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  Widget _buildStorageMethodsCard(
+  List storageMethods,
+  Map? selectedExplanations,
+) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.grey.shade50,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: Colors.grey.shade200, width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.1),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primary700.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary700,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.storage, color: Colors.white, size: 18),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                "Recommended Storage Methods",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
                   color: AppColors.primary700,
-                  borderRadius: BorderRadius.circular(8),
+                  fontSize: 16,
                 ),
-                child: const Icon(Icons.storage, color: Colors.white, size: 18),
               ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  "Recommended Storage Methods",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary700,
-                    fontSize: 16,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: storageMethods.map<Widget>((method) {
+            final explanation = selectedExplanations != null &&
+                    selectedExplanations[method] != null
+                ? selectedExplanations[method].toString()
+                : null;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.primary700,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary700.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Fixed: Used Column instead of Wrap to prevent overflow
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children:
-                storageMethods.map((method) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    method.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary700,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary700.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                  ),
+                  if (explanation != null && explanation.trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    ..._buildBulletLines(
+                      explanation,
+                      bulletColor: Colors.white,
+                      textColor: Colors.white,
                     ),
-                    child: Text(
-                      method.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  );
-                }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Widget _buildSeasonCard(String season) {
-  //   String displaySeason =
-  //       season.toLowerCase().contains('wet')
-  //           ? 'Wet Season'
-  //           : season.toLowerCase().contains('dry')
-  //           ? 'Dry Season'
-  //           : season;
-
-  //   return Container(
-  //     width: double.infinity,
-  //     padding: const EdgeInsets.all(20),
-  //     decoration: BoxDecoration(
-  //       gradient: LinearGradient(
-  //         colors: [
-  //           Colors.orange.withOpacity(0.1),
-  //           Colors.orange.withOpacity(0.05),
-  //         ],
-  //         begin: Alignment.topLeft,
-  //         end: Alignment.bottomRight,
-  //       ),
-  //       borderRadius: BorderRadius.circular(16),
-  //       border: Border.all(color: Colors.orange.withOpacity(0.3), width: 1),
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Container(
-  //           padding: const EdgeInsets.all(8),
-  //           decoration: BoxDecoration(
-  //             color: Colors.orange,
-  //             borderRadius: BorderRadius.circular(8),
-  //           ),
-  //           child: Icon(
-  //             displaySeason == 'Dry Season' ? Icons.wb_sunny : Icons.grain,
-  //             color: Colors.white,
-  //             size: 18,
-  //           ),
-  //         ),
-  //         const SizedBox(width: 12),
-  //         const Text(
-  //           "Season: ",
-  //           style: TextStyle(
-  //             fontWeight: FontWeight.bold,
-  //             color: Colors.orange,
-  //             fontSize: 16,
-  //           ),
-  //         ),
-  //         Expanded(
-  //           child: Text(
-  //             displaySeason,
-  //             style: TextStyle(
-  //               color: Colors.orange.shade700,
-  //               fontSize: 16,
-  //               fontWeight: FontWeight.w600,
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+                  ],
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildForecastCard(dynamic forecastData) {
+    final List<String> lines = [];
+    if (forecastData is Map) {
+      forecastData.forEach((key, value) {
+        String label = key.toString().replaceAll('_', ' ');
+        String displayValue = value.toString();
+        if (label.toLowerCase().contains('temp')) {
+          displayValue += " °C";
+        } else if (label.toLowerCase().contains('humidity')) {
+          displayValue += " %";
+        } else if (label.toLowerCase().contains('rain')) {
+          displayValue += " mm";
+        }
+        lines.add("$label: $displayValue");
+      });
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -680,12 +650,12 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.blue.withOpacity(0.2), width: 1),
             ),
-            child: Text(
-              _formatJson(forecastData),
-              style: TextStyle(
-                color: Colors.blue.shade700,
-                fontSize: 14,
-                height: 1.5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _buildBulletLines(
+                lines.join('\n'),
+                bulletColor: Colors.blue.shade700,
+                textColor: Colors.blue.shade700,
               ),
             ),
           ),
@@ -727,7 +697,7 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
               const SizedBox(width: 12),
               const Expanded(
                 child: Text(
-                  "Important Alerts",
+                  "Important Alert",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
@@ -738,53 +708,20 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
             ],
           ),
           const SizedBox(height: 16),
-          ...alerts.map((alert) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.red.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      alert.toString(),
-                      style: TextStyle(
-                        color: Colors.red.shade700,
-                        fontSize: 14,
-                        height: 1.5,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+          ..._buildBulletLines(
+            alerts.join('\n'),
+            bulletColor: Colors.red,
+            textColor: Colors.red.shade700,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildExplanationsCard(dynamic explanations) {
+  Widget _buildExplanationsCard(
+    dynamic explanations, {
+    String title = "Detailed Explanations",
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -818,10 +755,10 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  "Detailed Explanations",
-                  style: TextStyle(
+                  title,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.purple,
                     fontSize: 16,
@@ -863,18 +800,15 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title (e.g., BARN)
                 Text(
                   key.toString().replaceAll('_', ' ').toUpperCase(),
                   style: TextStyle(
                     color: Colors.purple.shade800,
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
-
-                // Explanation lines with bullets
                 ..._buildBulletLines(value.toString()),
               ],
             ),
@@ -892,7 +826,11 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
     return items;
   }
 
-  List<Widget> _buildBulletLines(String text) {
+  List<Widget> _buildBulletLines(
+    String text, {
+    Color bulletColor = Colors.purple,
+    Color textColor = Colors.purple,
+  }) {
     final lines = text.trim().split('\n');
     final List<Widget> widgets = [];
 
@@ -906,26 +844,24 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Bullet dot (same as in alert)
               Container(
                 margin: const EdgeInsets.only(top: 6),
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: Colors.purple.shade600,
+                  color: bulletColor,
                   shape: BoxShape.circle,
                 ),
               ),
               const SizedBox(width: 12),
-
-              // Text
               Expanded(
                 child: Text(
                   trimmed,
                   style: TextStyle(
-                    color: Colors.purple.shade700,
+                    color: textColor,
                     fontSize: 14,
                     height: 1.5,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -936,20 +872,5 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
     }
 
     return widgets;
-  }
-
-  String _formatJson(dynamic jsonData) {
-    if (jsonData is Map) {
-      return jsonData.entries
-          .map(
-            (entry) =>
-                "${entry.key.toString().replaceAll('_', ' ')}: ${entry.value}",
-          )
-          .join('\n');
-    } else if (jsonData is List) {
-      return jsonData.map((item) => "• $item").join('\n');
-    } else {
-      return jsonData.toString();
-    }
   }
 }

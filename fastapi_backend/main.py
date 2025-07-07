@@ -26,7 +26,7 @@ MODEL_PATHS = {
 MODELS = {}
 for k, p in MODEL_PATHS.items():
     if not os.path.exists(p):
-        raise RuntimeError(f"❌  Missing model: {p} – run train_models.py")
+        raise RuntimeError(f"❌  Missing model: {p} - run train_models.py")
     MODELS[k] = joblib.load(p)
 
 # ---------- yam meta ----------
@@ -104,16 +104,17 @@ def recommend(req:Request):
             "Recommended for whole yam only: low rain & moderate temp OK."
             "\nMust be well-ventilated and protected from rain in wet season."
             if season == "wet" else
-            "Recommended for whole yam only: low rain & moderate temp OK."
+            "Recommended for whole yam only\n"
+            "Low rain & moderate temp OK."
         )
         reason["barn"] = msg
         ios["barn"] = "outdoor"
     else:
         msg = (
             "Recommended for whole yam only.\n"
-            "Needs Temperature < 35°C\n"
-            "Need Rainfall < 4mm\n"
-            "Need Max Temperature < 37°C"
+            "Needs Temperature < 35\u00B0C\n"
+            "Need Rainfall < 4 mm\n"
+            "Need Max Temperature < 37 °C"
         )
         if season == "wet":
             msg += "\nMust be well-ventilated and protected from rain in wet season."
@@ -124,18 +125,22 @@ def recommend(req:Request):
     if "pit" in allowed and pit_ok:
         recs.append("pit")
         msg = (
-            "Recommended for whole yam only: humid & moderate rain → pit good."
+            "Recommended for whole yam only\n"
+            "Weather is humid & moderate rain - pit good."
         )
         reason["pit"] = msg
         ios["pit"] = "outdoor"
     else:
         msg = (
             "Recommended for whole yam only.\n"
-            "Needs humidity > 60\n"
-            "Need Rainfall <= 5mm"
+            "Needs humidity > 60 %\n"
+            "Need Rainfall <= 5 mm"
         )
         if season == "wet":
-            msg += "\nNot recommended in rainy season. Risk of rot due to wet soil."
+            msg += (
+                "\nNot recommended in rainy season.\n"
+                "Wet season - risk of rot due to wet soil."
+            )
         reason["pit"] = msg
 
     # ash/sawdust (updated threshold)
@@ -152,7 +157,7 @@ def recommend(req:Request):
             else:
                 reason["ash/sawdust (indoor)"] = (
                     "Recommended for whole yam or cut yam (max 14 days).\n"
-                    "Warm & wet - use ash/sawdust indoors."
+                    "Weather is warm and wet - use ash/sawdust indoors."
                 )
             ios["ash/sawdust (indoor)"] = "indoor"
         else:
@@ -165,13 +170,13 @@ def recommend(req:Request):
             else:
                 reason["ash/sawdust"] = (
                     "Recommended for whole yam or cut yam (max 14 days).\n"
-                    "Warm → ash buffers heat."
+                    "Weather is warm - ash protect yams from too much heat."
                 )
             ios["ash/sawdust"] = "outdoor"
     else:
         reason["ash/sawdust"] = (
             "Recommended for whole yam or cut yam (max 14 days).\n"
-            "Needs temp≥28°C."
+            "Needs temp >= 28 °C."
         )
 
     # ventilated crate (updated threshold)
@@ -180,19 +185,21 @@ def recommend(req:Request):
         if season == "wet":
             recs.append("ventilated crate (indoor)")
             reason["ventilated crate (indoor)"] = (
-                "Recommended for whole yam only: warm & wet - use crate indoors."
+                "Recommended for whole yam only.\n" 
+                "Weather is warm and wet - use crate indoors."
             )
             ios["ventilated crate (indoor)"] = "indoor"
         else:
             recs.append("ventilated crate")
             reason["ventilated crate"] = (
-                "Recommended for whole yam only: warm & airy."
+                "Recommended for whole yam only.\n" 
+                "Weather is warm and airy - use crate outdoor."
             )
             ios["ventilated crate"] = "outdoor"
     else:
         reason["ventilated crate"] = (
             "Recommended for whole yam only.\n"
-            "Needs 28-35°C."
+            "Needs 28-35 °C."
         )
 
     # alerts
@@ -201,23 +208,31 @@ def recommend(req:Request):
     if season=="dry":
         alerts.append("Dry season - monitor for dehydration.")
     if max_temp>36:   
-        alerts.append("Heat-stress risk (>36°C).")
+        alerts.append("Heat-stress risk (>36 °C).")
 
     if not recs:
         recs=["No optimal storage method under current forecast."]
 
+    # Separate explanations
+    selected_explanations = {k: v for k, v in reason.items() if k in recs}
+    not_selected_explanations = {k: v for k, v in reason.items() if k not in recs}
+
     return {
-        "yam_type":yam,
-        "condition":req.condition,
-        "interval":req.interval,
-        "season":season,
-        "recommended_storage_methods":recs,
-        "forecast_summary":{
-            "Average_Temperature":avg_temp,"Average_Max_Temperature":max_temp,
-            "Average_Humidity":avg_hum,"Average_Rainfall":avg_rain},
-        # "indoor_or_outdoor":ios,
-        "alerts":alerts,
-        "explanations":reason,
+        "yam_type": yam,
+        "condition": req.condition,
+        "interval": req.interval,
+        "season": season,
+        "recommended_storage_methods": recs,
+        "forecast_summary": {
+            "Average_Temp": avg_temp,
+            "Average_Max_Temp": max_temp,
+            "Average_Humidity": avg_hum,
+            "Average_Rainfall": avg_rain
+        },
+        # "indoor_or_outdoor": ios,
+        "alerts": alerts,
+        "selected_explanations": selected_explanations,
+        "not_selected_explanations": not_selected_explanations,
     }
 
 @app.get("/yam-types")
