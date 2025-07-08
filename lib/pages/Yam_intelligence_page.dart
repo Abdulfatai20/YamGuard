@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
@@ -40,7 +42,7 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
 
   @override
   Widget build(BuildContext context) {
-    final yamTypes = ["White Yam", "Yellow Yam", "Bitter Yam", "Lesser Yam"];
+    final yamTypes = ["White Yam", "Yellow Yam", "Bitter Yam", "Water Yam"];
     final intervals = ["14_day", "30_day", "60_day", "90_day"];
     final conditions = ["whole", "cut"];
 
@@ -81,9 +83,9 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Get personalized storage recommendations",
+                        "Get personalized storage recommendations for your yam using barn, pit, ash/sawdust, or ventilated crate methods.",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color: AppColors.secondary500,
                             fontWeight: FontWeight.w600,
                           ),

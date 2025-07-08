@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yam_guard/pages/Yam_intelligence_page.dart';
+import 'package:yam_guard/pages/yam_intelligence_page.dart';
 import 'package:yam_guard/pages/forecast_page.dart';
 import 'package:yam_guard/pages/loss_tracker_page.dart';
 import 'package:yam_guard/pages/profile_page.dart';
