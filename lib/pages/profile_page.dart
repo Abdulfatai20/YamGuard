@@ -345,7 +345,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Future<void> updateUsername() async {
-
     if (_usernameController.text.trim().isEmpty) {
       _showSnackBar('Username cannot be empty', Colors.red);
       return;
@@ -466,21 +465,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColors.white,
-        elevation: 0,
+        backgroundColor: AppColors.primary700,
+        elevation: 1,
         centerTitle: true,
-        title: const Padding(
-          padding: EdgeInsets.only(top: 46),
-          child: Text(
-            'Profile',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary700,
-            ),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.white,
           ),
         ),
-        toolbarHeight: 92,
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -490,7 +485,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Column(
                       children: [
                         const SizedBox(height: 30),
@@ -517,44 +512,41 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           ),
                         ),
                         const SizedBox(height: 30),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text(
-                                'Settings',
-                                style: TextStyle(
-                                  color: AppColors.secondary900,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text(
+                              'Settings',
+                              style: TextStyle(
+                                color: AppColors.secondary900,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
                               ),
-                              const SizedBox(height: 20),
-                              OutlinedShadowButton(
-                                text: 'Logout',
-                                onPressed: () => _showLogoutDialog(context),
-                              ),
-                              const SizedBox(height: 20),
-                              OutlinedShadowButton(
-                                text: 'Change Password',
-                                onPressed:
-                                    () => _showChangePasswordDialog(context),
-                              ),
-                              const SizedBox(height: 20),
-                              OutlinedShadowButton(
-                                text: 'Update Username',
-                                onPressed:
-                                    () => _showUpdateUsernameDialog(context),
-                              ),
-                              const SizedBox(height: 20),
-                              OutlinedShadowButton(
-                                text: 'Delete Account',
-                                onPressed:
-                                    () => _showDeleteAccountDialog(context),
-                              ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 20),
+                            OutlinedShadowButton(
+                              text: 'Logout',
+                              onPressed: () => _showLogoutDialog(context),
+                            ),
+                            const SizedBox(height: 20),
+                            OutlinedShadowButton(
+                              text: 'Change Password',
+                              onPressed:
+                                  () => _showChangePasswordDialog(context),
+                            ),
+                            const SizedBox(height: 20),
+                            OutlinedShadowButton(
+                              text: 'Update Username',
+                              onPressed:
+                                  () => _showUpdateUsernameDialog(context),
+                            ),
+                            const SizedBox(height: 20),
+                            OutlinedShadowButton(
+                              text: 'Delete Account',
+                              onPressed:
+                                  () => _showDeleteAccountDialog(context),
+                            ),
+                          ],
                         ),
                       ],
                     ),

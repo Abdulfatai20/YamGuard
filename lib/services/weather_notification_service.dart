@@ -1,11 +1,11 @@
 // services/weather_notification_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:yam_guard/services/expiration_notification_service.dart';
+import 'package:yam_guard/services/notification_service.dart';
 import 'package:yam_guard/services/weather_service.dart';
 import 'package:yam_guard/auth/auth_service.dart';
 
 class WeatherNotificationService {
-  final ExpirationNotificationService _notificationService;
+  final NotificationService _notificationService;
   final WeatherService _weatherService;
   final FirebaseFirestore _firestore;
   final AuthService _authService;
@@ -131,14 +131,13 @@ class WeatherNotificationService {
     String timeframe,
     DateTime alertDate,
   ) {
-    // Heavy Rain Alert
     if ((description.contains('heavy') && description.contains('rain')) ||
         precipitation > 10.0 ||
         mainCondition == 'thunderstorm') {
       return {
         'title': 'Heavy Rain Coming! ⛈️',
         'message':
-            'Heavy rain might come $timeframe. Keep yam covered and don\'t dry outside.',
+            'Heavy rain might come $timeframe. Store yam indoors and keep area dry.',
         'condition': 'heavy_rain',
         'severity': 'high',
       };
@@ -149,7 +148,7 @@ class WeatherNotificationService {
       return {
         'title': 'Strong Wind Coming! 💨',
         'message':
-            'Strong wind might come $timeframe. Tie down covers and make drying area safe.',
+            'Strong wind might come $timeframe. Tie down covers and use secure ventilated storage.',
         'condition': 'strong_wind',
         'severity': 'medium',
       };
@@ -160,7 +159,7 @@ class WeatherNotificationService {
       return {
         'title': 'Very Hot Day Coming! 🌡️',
         'message':
-            'Very hot weather $timeframe (${tempMax.round()}°C). Check yam storage - don\'t let it get too hot.',
+            'Very hot weather $timeframe (${tempMax.round()}°C). Keep yam storage cool and away from sun.',
         'condition': 'extreme_heat',
         'severity': 'medium',
       };
@@ -171,7 +170,7 @@ class WeatherNotificationService {
       return {
         'title': 'Flood Risk Coming! 🌊',
         'message':
-            'Heavy rain and wet air $timeframe. Water might flood - put yam higher up.',
+            'Heavy rain and wet air $timeframe. Store yam above ground and avoid waterlogged areas.',
         'condition': 'flood_risk',
         'severity': 'high',
       };
@@ -182,7 +181,7 @@ class WeatherNotificationService {
       return {
         'title': 'Very Dry Weather Coming! ☀️',
         'message':
-            'Very dry weather $timeframe. Watch stored yam for cracks and drying out.',
+            'Very dry weather $timeframe. Watch stored yam for cracking and maintain moisture balance.',
         'condition': 'drought',
         'severity': 'medium',
       };
@@ -194,7 +193,7 @@ class WeatherNotificationService {
       return {
         'title': 'Big Storm Coming! ⛈️',
         'message':
-            'Big storm might come $timeframe. Move yam to strong indoor storage.',
+            'Big storm might come $timeframe. Move yam to strong indoor storage like pit or crate.',
         'condition': 'severe_storm',
         'severity': 'high',
       };
@@ -205,18 +204,18 @@ class WeatherNotificationService {
       return {
         'title': 'Heavy Fog Coming! 🌫️',
         'message':
-            'Thick fog might come $timeframe. Don\'t transport yam - visibility low.',
+            'Thick fog might come $timeframe. Delay transporting yam and keep ventilation in storage.',
         'condition': 'heavy_fog',
         'severity': 'low',
       };
     }
 
-    // Moderate Rain Alert (still important for yam farming)s
+    // Moderate Rain Alert
     if (mainCondition == 'rain' && precipitation > 2.0) {
       return {
         'title': 'Rain Coming! 🌧️',
         'message':
-            'Rain might come $timeframe. Cover drying yam and make storage safe.',
+            'Rain might come $timeframe. Cover drying yam and store in sheltered barn or crate.',
         'condition': 'moderate_rain',
         'severity': 'low',
       };
@@ -225,28 +224,67 @@ class WeatherNotificationService {
     return null; // No extreme weather detected
   }
 
-  // Clean up old weather notifications for current user only (older than 3 days)
-  Future<void> cleanupOldWeatherNotifications() async {
-    final userId = _currentUserId;
-    if (userId == null) return;
-
-    try {
-      final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3));
-      final oldWeatherNotifications =
-          await _firestore
-              .collection('notifications')
-              .where('userId', isEqualTo: userId)
-              .where('type', isEqualTo: 'weather_alert')
-              .where('createdAt', isLessThan: Timestamp.fromDate(threeDaysAgo))
-              .get();
-
-      final batch = _firestore.batch();
-      for (final doc in oldWeatherNotifications.docs) {
-        batch.delete(doc.reference);
-      }
-      await batch.commit();
-    } catch (e) {
-      print('Error cleaning up old weather notifications: $e');
-    }
+ // Updated WeatherNotificationService cleanup method
+Future<int> cleanupOldWeatherNotifications() async {
+  final userId = _currentUserId;
+  if (userId == null) {
+    print('No user ID found for cleanup');
+    return 0;
   }
+
+  try {
+    final now = DateTime.now();
+    final threeDaysAgo = now.subtract(const Duration(days: 3));
+    print('Looking for weather notifications older than: $threeDaysAgo');
+
+    // Get all notifications for this user (avoid the complex query that needs index)
+    final allUserNotifications = await _firestore
+        .collection('notifications')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    print('Total notifications for user: ${allUserNotifications.docs.length}');
+
+    final batch = _firestore.batch();
+    int deleteCount = 0;
+
+    for (final doc in allUserNotifications.docs) {
+      final data = doc.data();
+      
+      // Check if it's a weather alert
+      if (data['type'] == 'weather_alert') {
+        final createdAt = data['createdAt'] as Timestamp?;
+        
+        if (createdAt != null) {
+          final createdDate = createdAt.toDate();
+          print('Weather notification ${doc.id}: Created on $createdDate');
+          
+          // Delete if older than 3 days OR if timestamp is in the future (corrupted data)
+          if (createdDate.isBefore(threeDaysAgo) || createdDate.isAfter(now.add(Duration(minutes: 5)))) {
+            print('Marking for deletion: ${doc.id} - ${data['title']} (Created: $createdDate)');
+            batch.delete(doc.reference);
+            deleteCount++;
+          }
+        } else {
+          // Delete notifications without createdAt timestamp
+          print('Marking for deletion (no timestamp): ${doc.id} - ${data['title']}');
+          batch.delete(doc.reference);
+          deleteCount++;
+        }
+      }
+    }
+
+    if (deleteCount > 0) {
+      await batch.commit();
+      print('Successfully deleted $deleteCount old/corrupted weather notifications');
+    } else {
+      print('No weather notifications found for deletion');
+    }
+    
+    return deleteCount;
+  } catch (e) {
+    print('Error cleaning up old weather notifications: $e');
+    return 0;
+  }
+}
 }

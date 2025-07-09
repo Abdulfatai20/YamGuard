@@ -29,61 +29,30 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   Widget build(BuildContext context) {
     final notificationsAsync = ref.watch(notificationsStreamProvider);
     final notificationService = ref.read(notificationServiceProvider);
-    final weatherNotificationService = ref.read(weatherNotificationServiceProvider);
+    final weatherNotificationService = ref.read(
+      weatherNotificationServiceProvider,
+    );
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(top: 46),
-          child: IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: AppColors.primary700,
-            ),
+        toolbarHeight: 92, // Adds vertical space overall
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back_ios, color: AppColors.primary700),
+        ),
+        title: Text(
+          'Notifications',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primary700,
           ),
         ),
-        title: const Padding(
-          padding: EdgeInsets.only(top: 46),
-          child: Text(
-            'Notifications',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary700,
-            ),
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(top: 46, right: 16),
-            child: TextButton(
-              onPressed: () {
-                notificationService.cleanupOldNotifications();
-                weatherNotificationService.cleanupOldWeatherNotifications();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Old notifications cleared'),
-                    backgroundColor: AppColors.primary700,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
-              child: Text(
-                'Clear Old',
-                style: TextStyle(
-                  color: AppColors.primary700,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ),
-        ],
-        toolbarHeight: 92, // 46 padding + ~46 default height
       ),
+
       body: SafeArea(
         child: notificationsAsync.when(
           data: (notifications) {
@@ -130,32 +99,28 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               ),
             );
           },
-          loading: () => Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primary700,
-            ),
-          ),
-          error: (error, stack) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red,
+          loading:
+              () => Center(
+                child: CircularProgressIndicator(color: AppColors.primary700),
+              ),
+          error:
+              (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    SizedBox(height: 16),
+                    Text(
+                      'Error loading notifications',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 16),
-                Text(
-                  'Error loading notifications',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.red,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
         ),
       ),
     );
@@ -177,12 +142,16 @@ class NotificationCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: notification.isRead ? Colors.white : AppColors.primary700.withOpacity(0.05),
+        color:
+            notification.isRead
+                ? Colors.white
+                : AppColors.primary700.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: notification.isRead 
-              ? AppColors.secondary900.withOpacity(0.1)
-              : AppColors.primary700.withOpacity(0.2),
+          color:
+              notification.isRead
+                  ? AppColors.secondary900.withOpacity(0.1)
+                  : AppColors.primary700.withOpacity(0.2),
           width: 1,
         ),
       ),
@@ -220,9 +189,10 @@ class NotificationCard extends StatelessWidget {
                               notification.title,
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: notification.isRead 
-                                    ? FontWeight.w500 
-                                    : FontWeight.w600,
+                                fontWeight:
+                                    notification.isRead
+                                        ? FontWeight.w500
+                                        : FontWeight.w600,
                                 color: AppColors.secondary900,
                               ),
                             ),
@@ -247,12 +217,15 @@ class NotificationCard extends StatelessWidget {
                           height: 1.3,
                         ),
                       ),
-                      if (notification.type == 'weather_alert' && 
+                      if (notification.type == 'weather_alert' &&
                           notification.data.containsKey('severity'))
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: _getSeverityColor().withOpacity(0.1),
                               borderRadius: BorderRadius.circular(4),

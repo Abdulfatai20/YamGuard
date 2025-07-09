@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:yam_guard/themes/colors.dart';
 
-
 class NextForecastPage extends StatelessWidget {
   final List<Map<String, String>> forecastItems;
   const NextForecastPage({super.key, required this.forecastItems});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 44),
-      child: Container(
+    return Container(
         width: double.infinity,
         decoration: BoxDecoration(color: Colors.white),
         child: Column(
@@ -25,7 +22,7 @@ class NextForecastPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            ...forecastItems.map((item){
+            ...forecastItems.map((item) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Container(
@@ -49,20 +46,24 @@ class NextForecastPage extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            item['temp']!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.secondary900,
-                            ),
+
+                      // Temp text wrapped with Flexible to share space
+                      Flexible(
+                        flex: 2,
+                        child: Text(
+                          item['temp']!,
+                          textAlign: TextAlign.end,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.secondary900,
                           ),
-                        ],
+                        ),
                       ),
-                    
+
                       Image.asset(item['image']!, width: 30, height: 30),
                     ],
                   ),
@@ -71,7 +72,7 @@ class NextForecastPage extends StatelessWidget {
             }),
           ],
         ),
-      ),
+      
     );
   }
 }

@@ -14,19 +14,20 @@ class NavbarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navItems = [
-      {'icon': 'assets/icons/Forecast.png', 'label': 'Yam AI'},
-      {'icon': 'assets/icons/Forecast.png', 'label': 'Forecast'},
-      {'icon': 'assets/icons/loss_tracker.png', 'label': 'Loss Tracker'},
-      {'icon': 'assets/icons/Profile.png', 'label': 'Profile'},
+      {'icon': Icons.memory, 'isIcon': true, 'label': 'Yam AI'},
+      {'icon': 'assets/icons/Forecast.png', 'isIcon': false, 'label': 'Forecast'},
+      {'icon': 'assets/icons/storage_tips.png', 'isIcon': false, 'label': 'Info'},
+      {'icon': 'assets/icons/Profile.png', 'isIcon': false, 'label': 'Profile'},
     ];
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white, // Navbar background color
+        color: Colors.white,
         border: Border(
           top: BorderSide(
-            color: Color(0xB3BFBFBF), // Color: BFBFBF with 70% opacity
-            width: 1, // Stroke width at the top
+            color: const Color(0xB3BFBFBF),
+            width: 1,
           ),
         ),
       ),
@@ -41,24 +42,31 @@ class NavbarWidget extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  item['icon']!,
-                  width: 24.0,
-                  height: 24.0,
-                  color:
-                      isSelected
-                          ? AppColors.primary700
-                          : AppColors.secondary900,
-                ),
-                Text(
-                  item['label']!,
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w500,
-                    color:
-                        isSelected
+                item['isIcon'] == true
+                    ? Icon(
+                        item['icon'] as IconData, // cast
+                        size: 24,
+                        color: isSelected
                             ? AppColors.primary700
                             : AppColors.secondary900,
+                      )
+                    : Image.asset(
+                        item['icon'] as String, // cast
+                        width: 24,
+                        height: 24,
+                        color: isSelected
+                            ? AppColors.primary700
+                            : AppColors.secondary900,
+                      ),
+                const SizedBox(height: 4),
+                Text(
+                  item['label'] as String,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: isSelected
+                        ? AppColors.primary700
+                        : AppColors.secondary900,
                   ),
                 ),
               ],

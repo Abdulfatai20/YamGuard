@@ -7,47 +7,38 @@ class AppbarWidget extends StatelessWidget implements PreferredSizeWidget {
   const AppbarWidget({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(100);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight); // = 56.0
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor:
-          AppColors.primary700, // Transparent to show the background
-      elevation: 0, // No shadow
-      flexibleSpace: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 46.0, left: 20, right: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Text(
-                    'Yam Intelligence',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                      color: AppColors.white,
-                    ),
-                  ),
-                ],
-              ),
-              NotificationBadge(
-                iconSize: 24,
-                iconColor: AppColors.white,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationsPage(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+      backgroundColor: AppColors.primary700,
+      elevation: 1,
+      centerTitle: true,
+      title: const Text(
+        'Yam Intelligence',
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+          color: AppColors.white,
         ),
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: NotificationBadge(
+            iconSize: 24,
+            iconColor: AppColors.white,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsPage(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

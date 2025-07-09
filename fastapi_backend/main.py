@@ -97,14 +97,6 @@ def recommend(req: Request):
     else:
         # WHOLE yams rule: check shelf-life limit
         allowed = {"barn", "pit", "ash/sawdust", "ventilated crate"}
-        max_days = SHELF_LIMITS.get(yam, 90)
-        req_days = INTERVAL_MAP[req.interval]
-        if req_days > max_days:
-            raise HTTPException(
-                400,
-                f"{yam.split()[0].capitalize()} yam has a max shelf life of {max_days} days; "
-                f"cannot generate a {req_days}-day recommendation."
-            )
 
     days = INTERVAL_MAP[req.interval]
     fc = {k: forecast(m, days) for k, m in MODELS.items()}

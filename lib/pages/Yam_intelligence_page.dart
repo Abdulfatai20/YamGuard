@@ -14,7 +14,7 @@ final yamRecommendationProvider =
       params,
     ) async {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/recommendation/'),
+       Uri.parse('https://yamguard.onrender.com/recommendation/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(params),
       );
@@ -26,7 +26,7 @@ final yamRecommendationProvider =
     });
 
 class YamIntelligencePage extends ConsumerStatefulWidget {
-  const YamIntelligencePage({Key? key}) : super(key: key);
+  const YamIntelligencePage({super.key});
 
   @override
   ConsumerState<YamIntelligencePage> createState() =>
@@ -324,7 +324,6 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
 
                 // Recommendation Results

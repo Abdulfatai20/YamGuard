@@ -10,9 +10,8 @@ class TodayForecastWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final todayForecastData = ref.watch(todayForecastProvider);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 44),
-      child: Container(
+    return
+       Container(
         padding: const EdgeInsets.only(bottom: 10.0),
         width: double.infinity,
         decoration: BoxDecoration(
@@ -59,19 +58,23 @@ class TodayForecastWidget extends ConsumerWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              data['temp']!,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.secondary900,
-                              ),
+
+                        Flexible(
+                          flex: 2,
+                          child: Text(
+                            data['temp']!,
+                            textAlign: TextAlign.end,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.secondary900,
                             ),
-                          ],
+                          ),
                         ),
+
                         Image.asset(data['image']!, width: 30, height: 30),
                       ],
                     ),
@@ -106,12 +109,15 @@ class TodayForecastWidget extends ConsumerWidget {
                 padding: const EdgeInsets.all(20.0),
                 child: Text(
                   'Failed to load today’s forecast',
-                  style: TextStyle(fontWeight: FontWeight.w500, color: Colors.red),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.red,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
         ),
-      ),
-    );
+      );
+    
   }
 }
