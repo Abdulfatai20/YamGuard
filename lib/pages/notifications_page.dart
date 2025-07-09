@@ -29,16 +29,15 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   Widget build(BuildContext context) {
     final notificationsAsync = ref.watch(notificationsStreamProvider);
     final notificationService = ref.read(notificationServiceProvider);
-    final weatherNotificationService = ref.read(
-      weatherNotificationServiceProvider,
-    );
+    // final weatherNotificationService = ref.read(
+    //   weatherNotificationServiceProvider,
+    // );
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        elevation: 0,
+        elevation: 1,
         centerTitle: true,
-        toolbarHeight: 92, // Adds vertical space overall
         leading: IconButton(
           onPressed: () => Navigator.of(context).pop(),
           icon: Icon(Icons.arrow_back_ios, color: AppColors.primary700),

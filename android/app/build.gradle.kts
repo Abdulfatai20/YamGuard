@@ -18,7 +18,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    kotlinOptions {git branch -M main
+    kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 

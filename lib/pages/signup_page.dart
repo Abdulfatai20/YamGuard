@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yam_guard/pages/login_page.dart';
 import 'package:yam_guard/providers/auth_service_provider.dart';
+import 'package:yam_guard/providers/notification_provider.dart'; // Add this import
 import 'package:yam_guard/themes/colors.dart';
 import 'package:yam_guard/widgets/widget_tree.dart';
 
@@ -46,6 +47,18 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       // Update display name after signup
       await auth.updateUserName(_displayNameController.text.trim());
 
+      // Create welcome notification
+      final notificationService = ref.read(notificationServiceProvider);
+      await notificationService.createNotification(
+        title: 'Welcome to YamGuard! 🎉',
+        message: 'You\'re all set to explore smart yam storage and weather insights.',
+        type: 'welcome',
+        data: {
+          'isWelcomeMessage': true,
+          'userDisplayName': _displayNameController.text.trim(),
+        },
+      );
+
       if (!mounted) return;
 
       Navigator.pushAndRemoveUntil(
@@ -64,10 +77,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
           backgroundColor: Colors.red,
           content: Text(
             errorMessage,
-            style: TextStyle(
-              color: AppColors.white, // Yam greens
-             
-            ),
+            style: const TextStyle(color: AppColors.white),
           ),
           duration: const Duration(seconds: 3),
         ),
@@ -81,9 +91,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text(
-            errorMessage,
-            style: const TextStyle(
+          content: const Text(
+            'Unexpected error occurred',
+            style: TextStyle(
               color: AppColors.white,
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -100,175 +110,178 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 44.0),
-          child: Container(
-            width: double.infinity,
-            color: Colors.white,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // First Column (Title & Subtitle)
-                  Column(
-                    children: const [
-                      Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primary700, // Yam greens
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Climate forecasting and smart storage solutions for yam farmers',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 70), // Space between columns
-                  // Second Column (Email & Password form fields)
-                  Column(
-                    children: [
-                      // Display Name
-                      TextFormField(
-                        controller: _displayNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
-                          border: UnderlineInputBorder(),
-                        ),
-                        validator:
-                            (value) =>
-                                value == null || value.trim().isEmpty
-                                    ? 'Please enter your name'
-                                    : null,
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Email
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
-                          border: UnderlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Enter your email';
-                          }
-                          final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Password
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: const UnderlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: Image.asset(
-                              _isPasswordVisible
-                                  ? 'assets/icons/visibility-on.png'
-                                  : 'assets/icons/visibility-off.png',
-                              width: 15,
-                              height: 15,
-                            ),
-                            onPressed: () {
-                              setState(
-                                () => _isPasswordVisible = !_isPasswordVisible,
-                              );
-                            },
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: IntrinsicHeight(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Title & Subtitle
+                    Column(
+                      children: const [
+                        Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary700,
                           ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null; // Validation passed
-                        },
-                      ),
-                    ],
-                  ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Climate forecasting and smart storage solutions for yam farmers',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 70),
 
-                  const SizedBox(
-                    height: 70,
-                  ), // Space between forms and button section
-                  // Sign Up Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _signUp,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary700,
-                      ),
-                      child:
-                          _isLoading
-                              ? const CircularProgressIndicator(
+                    // Input Fields
+                    Column(
+                      children: [
+                        // Display Name
+                        TextFormField(
+                          controller: _displayNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Name',
+                            border: UnderlineInputBorder(),
+                          ),
+                          validator: (value) =>
+                              value == null || value.trim().isEmpty
+                                  ? 'Please enter your name'
+                                  : null,
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Email
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            labelText: 'Email Address',
+                            border: UnderlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Enter your email';
+                            }
+                            final emailRegex =
+                                RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                            if (!emailRegex.hasMatch(value)) {
+                              return 'Enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Password
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: !_isPasswordVisible,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            border: const UnderlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: Image.asset(
+                                _isPasswordVisible
+                                    ? 'assets/icons/visibility-on.png'
+                                    : 'assets/icons/visibility-off.png',
+                                width: 15,
+                                height: 15,
+                              ),
+                              onPressed: () {
+                                setState(() => _isPasswordVisible =
+                                    !_isPasswordVisible);
+                              },
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 70),
+
+                    // Sign Up Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _signUp,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary700,
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                              : const Text(
+                            : const Text(
                                 'Sign Up',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: AppColors.white,
                                 ),
                               ),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  // Login redirect
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Already have an account? ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.secondary900,
+                    // Login redirect
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Already have an account? ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.secondary900,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: 'Login Now',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primary700,
+                          TextSpan(
+                            text: 'Login Now',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primary700,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const LoginPage(),
+                                  ),
+                                );
+                              },
                           ),
-                          recognizer:
-                              TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const LoginPage(),
-                                    ),
-                                  );
-                                },
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  // const SizedBox(height: 50),
-                ],
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
           ),

@@ -32,7 +32,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final args = ModalRoute.of(context)?.settings.arguments;
 
     if (args == 'logged_out' && !_showLogoutSucessSnackbar) {
-      _showLogoutSucessSnackbar = true; // So it only shows once
+      _showLogoutSucessSnackbar = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -47,11 +47,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         );
       });
-      // You cannot reset the arguments directly; consider using a local flag or a state management solution
     }
 
     if (args == 'account_deleted' && !_showAccountDeletedSnackbar) {
-      _showAccountDeletedSnackbar = true; // So it only shows once
+      _showAccountDeletedSnackbar = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -66,7 +65,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         );
       });
-      // You cannot reset the arguments directly; consider using a local flag or a state management solution
     }
   }
 
@@ -110,9 +108,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           backgroundColor: Colors.red,
           content: Text(
             errorMessage,
-            style: TextStyle(
-              color: AppColors.white, // Yam greens
-            ),
+            style: const TextStyle(color: AppColors.white),
           ),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
@@ -121,21 +117,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        errorMessage = 'Unexpected error occured';
+        errorMessage = 'Unexpected error occurred';
         _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text(
-            errorMessage,
-            style: const TextStyle(
+          content: const Text(
+            'Unexpected error occurred',
+            style: TextStyle(
               color: AppColors.white,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
           ),
-          duration: const Duration(seconds: 3),
+          duration: Duration(seconds: 3),
         ),
       );
     } finally {
@@ -146,156 +142,160 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 44.0),
-          child: Container(
-            width: double.infinity,
-            color: Colors.white,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Title & Subtitle
-                  Column(
-                    children: const [
-                      Text(
-                        'Login',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primary700,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: IntrinsicHeight(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Title & Subtitle
+                    Column(
+                      children: const [
+                        Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary700,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Climate forecasting and smart storage solutions for yam farmers',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                        SizedBox(height: 10),
+                        Text(
+                          'Climate forecasting and smart storage solutions for yam farmers',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 70),
-
-                  // Email
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email Address',
-                      border: UnderlineInputBorder(),
+                      ],
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Enter your email';
-                      }
-                      final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                      if (!emailRegex.hasMatch(value)) {
-                        return 'Enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 70),
 
-                  // Password
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: !_isPasswordVisible,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: const UnderlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Image.asset(
-                          _isPasswordVisible
-                              ? 'assets/icons/visibility-on.png'
-                              : 'assets/icons/visibility-off.png',
-                          width: 15,
-                          height: 15,
-                        ),
-                        onPressed: () {
-                          setState(
-                            () => _isPasswordVisible = !_isPasswordVisible,
-                          );
-                        },
+                    // Email
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Email Address',
+                        border: UnderlineInputBorder(),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter your email';
+                        }
+                        final emailRegex =
+                            RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                        if (!emailRegex.hasMatch(value)) {
+                          return 'Enter a valid email';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Enter your password';
-                      }
-                      return null;
-                    },
-                  ),
+                    const SizedBox(height: 20),
 
-                  const SizedBox(height: 70),
-
-                  // Login Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _logIn,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary700,
+                    // Password
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: !_isPasswordVisible,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: const UnderlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Image.asset(
+                            _isPasswordVisible
+                                ? 'assets/icons/visibility-on.png'
+                                : 'assets/icons/visibility-off.png',
+                            width: 15,
+                            height: 15,
+                          ),
+                          onPressed: () {
+                            setState(() => _isPasswordVisible =
+                                !_isPasswordVisible);
+                          },
+                        ),
                       ),
-                      child:
-                          _isLoading
-                              ? const CircularProgressIndicator(
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter your password';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 70),
+
+                    // Login Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _logIn,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary700,
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
                                 color: Colors.white,
                               )
-                              : const Text(
+                            : const Text(
                                 'Login',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: AppColors.white,
                                 ),
                               ),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  // Signup redirect
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Don\'t have an account? ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.secondary900,
+                    // Signup redirect
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Don\'t have an account? ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.secondary900,
+                            ),
                           ),
-                        ),
-                        TextSpan(
-                          text: 'Sign Up',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primary700,
+                          TextSpan(
+                            text: 'Sign Up',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primary700,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SignupPage(),
+                                  ),
+                                );
+                              },
                           ),
-                          recognizer:
-                              TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const SignupPage(),
-                                    ),
-                                  );
-                                },
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  // const SizedBox(height: 50),
-                ],
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
           ),

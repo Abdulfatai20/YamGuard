@@ -71,7 +71,7 @@ final notificationsStreamProvider = StreamProvider<List<NotificationItem>>((ref)
       });
 });
 
-// Fixed unread notification count provider - simplified
+// Fixed unread notification count provider - more robust handling
 final unreadNotificationCountProvider = StreamProvider<int>((ref) {
   final firestore = ref.read(firestoreProvider);
   final authService = ref.read(authServiceProvider);
@@ -84,20 +84,28 @@ final unreadNotificationCountProvider = StreamProvider<int>((ref) {
   return firestore
       .collection('notifications')
       .where('userId', isEqualTo: currentUser.uid)
-      .where('isRead', isEqualTo: false)
       .snapshots()
       .asyncMap((snapshot) async {
         try {
-          print('Unread notifications count: ${snapshot.docs.length}');
-          return snapshot.docs.length;
+          int unreadCount = 0;
+          
+          for (final doc in snapshot.docs) {
+            final data = doc.data();
+            // Check if isRead field exists and is false, or if it doesn't exist (default to unread)
+            final isRead = data['isRead'];
+            if (isRead == null || isRead == false) {
+              unreadCount++;
+            }
+          }
+          
+          print('Unread notifications count: $unreadCount out of ${snapshot.docs.length} total');
+          return unreadCount;
         } catch (e) {
           print('Unread count error: $e');
           return 0;
         }
       });
 });
-
-
 
 // Provider for checking weather conditions periodically
 final weatherAlertCheckerProvider = Provider<void>((ref) {

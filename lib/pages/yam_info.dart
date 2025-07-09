@@ -1,8 +1,16 @@
+
 import 'package:flutter/material.dart';
 import 'package:yam_guard/themes/colors.dart';
 
-class YamInfoPage extends StatelessWidget {
+class YamInfoPage extends StatefulWidget {
   const YamInfoPage({super.key});
+
+  @override
+  State<YamInfoPage> createState() => _YamInfoPageState();
+}
+
+class _YamInfoPageState extends State<YamInfoPage> {
+  
 
   @override
   Widget build(BuildContext context) {
@@ -26,31 +34,12 @@ class YamInfoPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─── Image Placeholder ───
-            Container(
-              height: 180,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.primary100,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Center(
-                child: Text(
-                  'Yam Info Image',
-                  style: TextStyle(color: AppColors.primary700),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // ─── Section Title ───
             const Text(
               'Yam Types in Southwestern Nigeria',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
-            // ─── Yam Type Cards ───
             _yamCard(
               title: 'White Yam (Dioscorea rotundata)',
               localName: 'Ìṣù fúnfun',
@@ -68,7 +57,7 @@ class YamInfoPage extends StatelessWidget {
               title: 'Water Yam (Dioscorea alata)',
               localName: 'Ìṣù ẹwúrà',
               description:
-                  'Very watery and spoils quickly; common during the rainy season and used for yam porridge (Àsáró).',
+                  'Very watery and spoils quickly compared to others; common during the rainy season and used for yam porridge (Àsáró).',
             ),
             _yamCard(
               title: 'Bitter Yam (Dioscorea dumetorum)',
@@ -78,14 +67,12 @@ class YamInfoPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 32),
-
             const Text(
               'Yam Storage Methods',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
-            // ─── Storage Method Cards ───
             _storageCard(
               title: 'Barn Storage',
               type: 'Whole yam only',
@@ -104,15 +91,15 @@ class YamInfoPage extends StatelessWidget {
               title: 'Ash/Sawdust Storage',
               type: 'Cut or whole yam',
               description:
-                  'Cut pieces are dried for 1–2 days, then stored in dry ash or sawdust. Also suitable for whole yam.',
-              note: 'Store in indoor, airy place. Never store wet cut yam.',
+                  'Cut pieces are dried for 1-2 days, then stored in dry ash or sawdust. Also suitable for whole yam.',
+              note: 'Prefer indoor, airy place but can be used outdoors. Never store wet cut yam.',
             ),
             _storageCard(
               title: 'Ventilated Crate Storage',
               type: 'Whole yam only',
               description:
                   'Plastic or wooden crates with holes reduce bruising and allow airflow.',
-              note: 'Prefer indoor use during the rainy season.',
+              note: 'Prefer indoor use during the rainy season but can be used outdoors.',
             ),
           ],
         ),
