@@ -73,35 +73,44 @@ class NotificationService {
         batch.update(doc.reference, {'isRead': true});
       }
       await batch.commit();
+      print('Marked ${unreadNotifications.docs.length} notifications as read');
     } catch (e) {
       print('Error marking all notifications as read: $e');
     }
   }
 
-  // Updated cleanup method to handle welcome notifications and other types
+  // Enhanced cleanup method with better logging and error handling
   Future<int> cleanupOldNotifications() async {
     final userId = _currentUserId;
-    if (userId == null) return 0;
+    if (userId == null) {
+      print('No user ID found for cleanup');
+      return 0;
+    }
 
     try {
-      final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3));
-      
+      final now = DateTime.now();
+      final threeDaysAgo = now.subtract(const Duration(days: 3));
+      print('Cleaning up notifications older than: $threeDaysAgo');
+
       // Get all notifications for this user
       final allUserNotifications = await _firestore
           .collection('notifications')
           .where('userId', isEqualTo: userId)
           .get();
 
+      print('Total notifications for user: ${allUserNotifications.docs.length}');
+
       final batch = _firestore.batch();
       int deleteCount = 0;
+      final List<String> deletedTypes = [];
 
       for (final doc in allUserNotifications.docs) {
         final data = doc.data();
         final createdAt = data['createdAt'] as Timestamp?;
+        final notificationType = data['type'] as String? ?? 'unknown';
         
         if (createdAt != null) {
           final createdDate = createdAt.toDate();
-          final notificationType = data['type'] as String?;
           
           // Clean up notifications older than 3 days
           // This includes welcome notifications, weather alerts, and any other types
@@ -109,18 +118,25 @@ class NotificationService {
             print('Marking for deletion: ${doc.id} - ${data['title']} (Type: $notificationType, Created: $createdDate)');
             batch.delete(doc.reference);
             deleteCount++;
+            if (!deletedTypes.contains(notificationType)) {
+              deletedTypes.add(notificationType);
+            }
           }
         } else {
           // Delete notifications without timestamp (corrupted data)
-          print('Marking for deletion (no timestamp): ${doc.id} - ${data['title']}');
+          print('Marking for deletion (no timestamp): ${doc.id} - ${data['title']} (Type: $notificationType)');
           batch.delete(doc.reference);
           deleteCount++;
+          if (!deletedTypes.contains(notificationType)) {
+            deletedTypes.add(notificationType);
+          }
         }
       }
 
       if (deleteCount > 0) {
         await batch.commit();
         print('Successfully deleted $deleteCount old notifications');
+        print('Deleted notification types: ${deletedTypes.join(', ')}');
       } else {
         print('No notifications found for cleanup');
       }
@@ -132,52 +148,32 @@ class NotificationService {
     }
   }
 
-  // // Optional: Separate method to clean up only welcome notifications if needed
-  // Future<int> cleanupWelcomeNotifications() async {
-  //   final userId = _currentUserId;
-  //   if (userId == null) return 0;
+  // Method to force cleanup of specific notification types (for testing)
+  Future<int> forceCleanupNotificationType(String notificationType) async {
+    final userId = _currentUserId;
+    if (userId == null) return 0;
 
-  //   try {
-  //     final threeDaysAgo = DateTime.now().subtract(const Duration(days: 3));
+    try {
+      final notifications = await _firestore
+          .collection('notifications')
+          .where('userId', isEqualTo: userId)
+          .where('type', isEqualTo: notificationType)
+          .get();
+
+      final batch = _firestore.batch();
+      for (final doc in notifications.docs) {
+        batch.delete(doc.reference);
+      }
       
-  //     final welcomeNotifications = await _firestore
-  //         .collection('notifications')
-  //         .where('userId', isEqualTo: userId)
-  //         .where('type', isEqualTo: 'welcome')
-  //         .get();
-
-  //     final batch = _firestore.batch();
-  //     int deleteCount = 0;
-
-  //     for (final doc in welcomeNotifications.docs) {
-  //       final data = doc.data();
-  //       final createdAt = data['createdAt'] as Timestamp?;
-        
-  //       if (createdAt != null) {
-  //         final createdDate = createdAt.toDate();
-          
-  //         if (createdDate.isBefore(threeDaysAgo)) {
-  //           print('Deleting welcome notification: ${doc.id} - ${data['title']} (Created: $createdDate)');
-  //           batch.delete(doc.reference);
-  //           deleteCount++;
-  //         }
-  //       } else {
-  //         // Delete welcome notifications without timestamp
-  //         print('Deleting welcome notification (no timestamp): ${doc.id} - ${data['title']}');
-  //         batch.delete(doc.reference);
-  //         deleteCount++;
-  //       }
-  //     }
-
-  //     if (deleteCount > 0) {
-  //       await batch.commit();
-  //       print('Successfully deleted $deleteCount welcome notifications');
-  //     }
+      if (notifications.docs.isNotEmpty) {
+        await batch.commit();
+        print('Force deleted ${notifications.docs.length} notifications of type: $notificationType');
+      }
       
-  //     return deleteCount;
-  //   } catch (e) {
-  //     print('Error cleaning up welcome notifications: $e');
-  //     return 0;
-  //   }
-  // }
+      return notifications.docs.length;
+    } catch (e) {
+      print('Error force cleaning up $notificationType notifications: $e');
+      return 0;
+    }
+  }
 }

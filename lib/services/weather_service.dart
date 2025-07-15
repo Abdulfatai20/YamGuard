@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:yam_guard/config/api_keys.dart';
-import 'package:yam_guard/helpers/next_forecast_image_helper.dart';
+import 'package:yam_guard/helpers/image_helper.dart';
 import 'package:yam_guard/helpers/today_forecast_image_helper.dart';
 
 class WeatherService {

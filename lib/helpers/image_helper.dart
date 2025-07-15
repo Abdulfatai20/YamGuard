@@ -6,8 +6,13 @@ String getCustomImageForDescription(String description) {
       description.contains('shower')) {
     return 'assets/images/rainy.png';
   }
+  if (description.contains('partly') || description.contains('scattered')) {
+    return 'assets/images/partly_cloudy.png';
+  }
 
-  if (description.contains('cloud') || description.contains('cloud')) {
+  if (description.contains('cloud') ||
+      description.contains('overcast') ||
+      description.contains('broken')) {
     return 'assets/images/mostly_cloudy.png';
   }
   if (description.contains('clear') || description.contains('sunny')) {

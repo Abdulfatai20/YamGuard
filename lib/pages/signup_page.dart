@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yam_guard/pages/login_page.dart';
 import 'package:yam_guard/providers/auth_service_provider.dart';
-import 'package:yam_guard/providers/notification_provider.dart'; // Add this import
+import 'package:yam_guard/providers/notification_provider.dart'; 
 import 'package:yam_guard/themes/colors.dart';
 import 'package:yam_guard/widgets/widget_tree.dart';
 
@@ -51,13 +51,21 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       final notificationService = ref.read(notificationServiceProvider);
       await notificationService.createNotification(
         title: 'Welcome to YamGuard! 🎉',
-        message: 'You\'re all set to explore smart yam storage and weather insights.',
+        message:
+            'You\'re all set to explore smart yam storage and weather insights.',
         type: 'welcome',
         data: {
           'isWelcomeMessage': true,
           'userDisplayName': _displayNameController.text.trim(),
         },
       );
+
+      // Force refresh the notification providers to update the badge
+      ref.invalidate(notificationsStreamProvider);
+      ref.invalidate(unreadNotificationCountProvider);
+
+      // Add a small delay to ensure the notification is processed
+      await Future.delayed(const Duration(milliseconds: 500));
 
       if (!mounted) return;
 
@@ -116,7 +124,8 @@ class _SignupPageState extends ConsumerState<SignupPage> {
           padding: const EdgeInsets.symmetric(horizontal: 44.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
+              minHeight:
+                  MediaQuery.of(context).size.height -
                   MediaQuery.of(context).padding.top -
                   MediaQuery.of(context).viewInsets.bottom,
             ),
@@ -160,10 +169,11 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                             labelText: 'Name',
                             border: UnderlineInputBorder(),
                           ),
-                          validator: (value) =>
-                              value == null || value.trim().isEmpty
-                                  ? 'Please enter your name'
-                                  : null,
+                          validator:
+                              (value) =>
+                                  value == null || value.trim().isEmpty
+                                      ? 'Please enter your name'
+                                      : null,
                         ),
                         const SizedBox(height: 20),
 
@@ -179,8 +189,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                             if (value == null || value.isEmpty) {
                               return 'Enter your email';
                             }
-                            final emailRegex =
-                                RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                            final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                             if (!emailRegex.hasMatch(value)) {
                               return 'Enter a valid email';
                             }
@@ -205,8 +214,10 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                                 height: 15,
                               ),
                               onPressed: () {
-                                setState(() => _isPasswordVisible =
-                                    !_isPasswordVisible);
+                                setState(
+                                  () =>
+                                      _isPasswordVisible = !_isPasswordVisible,
+                                );
                               },
                             ),
                           ),
@@ -231,17 +242,18 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary700,
                         ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: AppColors.white,
+                        child:
+                            _isLoading
+                                ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                                : const Text(
+                                  'Sign Up',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColors.white,
+                                  ),
                                 ),
-                              ),
                       ),
                     ),
 
@@ -266,15 +278,16 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                               fontWeight: FontWeight.w500,
                               color: AppColors.primary700,
                             ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const LoginPage(),
-                                  ),
-                                );
-                              },
+                            recognizer:
+                                TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const LoginPage(),
+                                      ),
+                                    );
+                                  },
                           ),
                         ],
                       ),

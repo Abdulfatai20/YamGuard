@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yam_guard/auth/auth_wrapper.dart';
-import 'package:yam_guard/providers/expiry_cleanup_provider.dart';
 import 'package:yam_guard/services/notification_initialization_service.dart';
 import 'package:yam_guard/themes/colors.dart';
 
@@ -21,7 +20,6 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     NotificationInitializationService.initialize(ref);
-    ref.read(expiryCleanupProvider);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

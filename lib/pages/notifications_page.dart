@@ -29,9 +29,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   Widget build(BuildContext context) {
     final notificationsAsync = ref.watch(notificationsStreamProvider);
     final notificationService = ref.read(notificationServiceProvider);
-    // final weatherNotificationService = ref.read(
-    //   weatherNotificationServiceProvider,
-    // );
 
     return Scaffold(
       appBar: AppBar(
@@ -100,26 +97,64 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           },
           loading:
               () => Center(
-                child: CircularProgressIndicator(color: AppColors.primary700),
-              ),
-          error:
-              (error, stack) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red),
+                    CircularProgressIndicator(color: AppColors.primary700),
                     SizedBox(height: 16),
                     Text(
-                      'Error loading notifications',
+                      'Loading notifications...',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.red,
+                        fontSize: 16,
+                        color: AppColors.secondary900.withOpacity(0.7),
                       ),
                     ),
                   ],
                 ),
               ),
+          error: (error, stack) {
+            print('Notifications page error: $error');
+            print('Stack trace: $stack');
+
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  SizedBox(height: 16),
+                  Text(
+                    'Error loading notifications',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.red,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Please try again later',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AppColors.secondary900.withOpacity(0.7),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Force refresh notifications
+                      // ignore: unused_result
+                      ref.refresh(notificationsStreamProvider);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary700,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
@@ -264,17 +299,6 @@ class NotificationCard extends StatelessWidget {
 
   Color _getNotificationColor() {
     switch (notification.type) {
-      case 'expiring_soon':
-        return Colors.orange;
-      case 'moved_to_history':
-        if (notification.data['status'] == 'expired') {
-          return Colors.red;
-        } else if (notification.data['status'] == 'consumed') {
-          return Colors.green;
-        } else if (notification.data['status'] == 'sold') {
-          return Colors.blue;
-        }
-        return AppColors.primary700;
       case 'weather_alert':
         final condition = notification.data['condition'] as String? ?? '';
         switch (condition) {
@@ -312,17 +336,6 @@ class NotificationCard extends StatelessWidget {
 
   IconData _getNotificationIcon() {
     switch (notification.type) {
-      case 'expiring_soon':
-        return Icons.warning_outlined;
-      case 'moved_to_history':
-        if (notification.data['status'] == 'expired') {
-          return Icons.error_outline;
-        } else if (notification.data['status'] == 'consumed') {
-          return Icons.check_circle_outline;
-        } else if (notification.data['status'] == 'sold') {
-          return Icons.sell_outlined;
-        }
-        return Icons.history;
       case 'weather_alert':
         final condition = notification.data['condition'] as String? ?? '';
         switch (condition) {

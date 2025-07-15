@@ -28,7 +28,7 @@ final weatherNotificationServiceProvider = Provider<WeatherNotificationService>(
   return WeatherNotificationService(notificationService, weatherService, firestore, authService);
 });
 
-// Fixed notifications stream provider - simplified to avoid hanging
+// Fixed notifications stream provider with better error handling
 final notificationsStreamProvider = StreamProvider<List<NotificationItem>>((ref) {
   final firestore = ref.read(firestoreProvider);
   final authService = ref.read(authServiceProvider);
@@ -38,7 +38,6 @@ final notificationsStreamProvider = StreamProvider<List<NotificationItem>>((ref)
     return Stream.value(<NotificationItem>[]);
   }
   
-  // First try without orderBy to avoid index issues
   return firestore
       .collection('notifications')
       .where('userId', isEqualTo: currentUser.uid)
@@ -50,10 +49,25 @@ final notificationsStreamProvider = StreamProvider<List<NotificationItem>>((ref)
           
           for (final doc in snapshot.docs) {
             try {
-              final notification = NotificationItem.fromMap(doc.id, doc.data());
+              final data = doc.data();
+              
+              // Skip malformed documents
+              if (data['title'] == null || data['message'] == null) {
+                print('Skipping malformed notification ${doc.id}: missing required fields');
+                continue;
+              }
+              
+              final notification = NotificationItem.fromMap(doc.id, data);
               notifications.add(notification);
             } catch (e) {
               print('Error parsing notification ${doc.id}: $e');
+              // Delete corrupted notification
+              try {
+                await firestore.collection('notifications').doc(doc.id).delete();
+                print('Deleted corrupted notification ${doc.id}');
+              } catch (deleteError) {
+                print('Failed to delete corrupted notification ${doc.id}: $deleteError');
+              }
               continue;
             }
           }
@@ -68,10 +82,14 @@ final notificationsStreamProvider = StreamProvider<List<NotificationItem>>((ref)
           print('Error processing notifications: $e');
           return <NotificationItem>[];
         }
+      })
+      .handleError((error) {
+        print('Stream error in notifications: $error');
+        return <NotificationItem>[];
       });
 });
 
-// Fixed unread notification count provider - more robust handling
+// Fixed unread notification count provider with better error handling
 final unreadNotificationCountProvider = StreamProvider<int>((ref) {
   final firestore = ref.read(firestoreProvider);
   final authService = ref.read(authServiceProvider);
@@ -84,6 +102,7 @@ final unreadNotificationCountProvider = StreamProvider<int>((ref) {
   return firestore
       .collection('notifications')
       .where('userId', isEqualTo: currentUser.uid)
+      .where('isRead', isEqualTo: false)
       .snapshots()
       .asyncMap((snapshot) async {
         try {
@@ -91,7 +110,13 @@ final unreadNotificationCountProvider = StreamProvider<int>((ref) {
           
           for (final doc in snapshot.docs) {
             final data = doc.data();
-            // Check if isRead field exists and is false, or if it doesn't exist (default to unread)
+            
+            // Skip malformed documents
+            if (data['title'] == null || data['message'] == null) {
+              continue;
+            }
+            
+            // Only count if isRead is explicitly false or null (default unread)
             final isRead = data['isRead'];
             if (isRead == null || isRead == false) {
               unreadCount++;
@@ -104,12 +129,17 @@ final unreadNotificationCountProvider = StreamProvider<int>((ref) {
           print('Unread count error: $e');
           return 0;
         }
+      })
+      .handleError((error) {
+        print('Stream error in unread count: $error');
+        return 0;
       });
 });
 
-// Provider for checking weather conditions periodically
+// Enhanced weather alert checker with cleanup scheduling
 final weatherAlertCheckerProvider = Provider<void>((ref) {
   final weatherNotificationService = ref.read(weatherNotificationServiceProvider);
+  final notificationService = ref.read(notificationServiceProvider);
   
   // Check every 6 hours for extreme weather conditions
   Stream.periodic(const Duration(hours: 6)).listen((_) {
@@ -119,8 +149,27 @@ final weatherAlertCheckerProvider = Provider<void>((ref) {
   // Also check immediately when app starts
   weatherNotificationService.checkExtremeWeatherConditions();
   
-  // Clean up old weather notifications once daily
-  Stream.periodic(const Duration(days: 1)).listen((_) {
-    weatherNotificationService.cleanupOldWeatherNotifications();
+  // Clean up old notifications every 12 hours (including welcome notifications)
+  Stream.periodic(const Duration(hours: 12)).listen((_) async {
+    print('Running periodic cleanup...');
+    try {
+      final generalCleanup = await notificationService.cleanupOldNotifications();
+      final weatherCleanup = await weatherNotificationService.cleanupOldWeatherNotifications();
+      print('Cleanup completed: $generalCleanup general, $weatherCleanup weather notifications deleted');
+    } catch (e) {
+      print('Cleanup error: $e');
+    }
+  });
+  
+  // Run cleanup immediately on app start
+  Future.delayed(const Duration(seconds: 5), () async {
+    print('Running initial cleanup...');
+    try {
+      final generalCleanup = await notificationService.cleanupOldNotifications();
+      final weatherCleanup = await weatherNotificationService.cleanupOldWeatherNotifications();
+      print('Initial cleanup completed: $generalCleanup general, $weatherCleanup weather notifications deleted');
+    } catch (e) {
+      print('Initial cleanup error: $e');
+    }
   });
 });
