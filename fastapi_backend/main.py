@@ -120,7 +120,7 @@ def recommend(req: Request):
     else:
         reason["barn"] = (
             "Recommended for whole yam only.\n"
-            "Needs Temp < 35\u00B0C, Rainfall < 4 mm, Max Temp < 37°C."
+            "Needs Temp < 35 deg C, Rainfall < 4 mm, Max Temp < 37 deg C."
         )
         if season == "wet":
             reason["barn"] += "\nMust be protected from wet conditions."
@@ -166,7 +166,7 @@ def recommend(req: Request):
                 )
             ios["ash/sawdust"] = "outdoor"
     else:
-        reason["ash/sawdust"] = "Needs temp ≥ 28°C. Cut yam max: 14 days."
+        reason["ash/sawdust"] = "Needs temp ≥ 28 deg C. Cut yam max: 14 days."
 
     # ventilated crate
     crate_ok = 28 <= avg_temp <= 35 and days <= 60
@@ -186,7 +186,7 @@ def recommend(req: Request):
             )
             ios["ventilated crate"] = "outdoor"
     else:
-        reason["ventilated crate"] = "Needs 28-35°C. Only for whole yam."
+        reason["ventilated crate"] = "Needs 28-35 deg C. Only for whole yam."
 
     # alerts
     if season == "wet":
@@ -194,7 +194,7 @@ def recommend(req: Request):
     if season == "dry":
         alerts.append("Dry season - monitor for dehydration.")
     if max_temp > 36:
-        alerts.append("Heat-stress risk (>36°C).")
+        alerts.append("Heat-stress risk (>36 deg C).")
 
     if not recs:
         recs = ["No optimal storage method under current forecast."]
