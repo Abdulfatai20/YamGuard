@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -119,7 +120,7 @@ def recommend(req: Request):
     else:
         reason["barn"] = (
             "Recommended for whole yam only.\n"
-            "Needs Temp < 35°C, Rainfall < 4 mm, Max Temp < 37°C."
+            "Needs Temp < 35\u00B0C, Rainfall < 4 mm, Max Temp < 37°C."
         )
         if season == "wet":
             reason["barn"] += "\nMust be protected from wet conditions."
@@ -185,7 +186,7 @@ def recommend(req: Request):
             )
             ios["ventilated crate"] = "outdoor"
     else:
-        reason["ventilated crate"] = "Needs 28–35°C. Only for whole yam."
+        reason["ventilated crate"] = "Needs 28-35°C. Only for whole yam."
 
     # alerts
     if season == "wet":

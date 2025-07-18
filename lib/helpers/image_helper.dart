@@ -32,5 +32,5 @@ String getCustomImageForDescription(String description) {
   if (description.contains('wind') || description.contains('breeze')) {
     return 'assets/images/windy.png'; // strong breeze, windy
   }
-  return 'assets/weather/default.png'; // fallback image
+  return 'assets/images/cloudy.png'; // fallback image
 }
