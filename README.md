@@ -1,10 +1,5 @@
 # yam guard
 
- print(
-    'UV: $uvi, Clouds: $cloudiness, Visibility: $visibility, Time: $now, Sunrise: $sunrise, Sunset: $sunset, rain: $rainVolume, storm: $isStormy, dust: $isDusty',
-  );
-Refresh and notification 
-
 ## Getting Started
 
 This project is a starting point for a Flutter application.
@@ -18,4 +13,3 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-Development of a Mobile-Based Intelligent Storage System for Yam Farmers
