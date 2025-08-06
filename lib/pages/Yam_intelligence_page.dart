@@ -49,6 +49,7 @@ class _YamIntelligencePageState extends ConsumerState<YamIntelligencePage> {
     final recommendationAsync =
         _params == null ? null : ref.watch(yamRecommendationProvider(_params!));
 
+// Build the UI
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: const AppbarWidget(),
