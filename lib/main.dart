@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yam_guard/auth/auth_wrapper.dart';
 import 'package:yam_guard/services/notification_initialization_service.dart';
 import 'package:yam_guard/themes/colors.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
